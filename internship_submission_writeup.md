@@ -1,6 +1,6 @@
 # Vitto Fintech | Technical Assessment Submission Writeup
 
-**Candidate Name**: *Inclusive FinTech - Intern Track*  
+**Candidate Name**: *Kaushtubham Shukla*
 **Project Role**: Full Stack Software Engineer (Intern Assessment)  
 **Submission Date**: June 2026  
 **Repository**: [https://github.com/Kaushtubha/vitto-loan-portal](https://github.com/Kaushtubha/vitto-loan-portal)  
