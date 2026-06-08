@@ -18,11 +18,11 @@ const LANGUAGES = [
 
 const stagger = {
   hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.15 } },
+  show: { opacity: 1, transition: { staggerChildren: 0.04, delayChildren: 0.1 } },
 };
 const rise = {
-  hidden: { opacity: 0, y: 16 },
-  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 280, damping: 22 } },
+  hidden: { opacity: 0, y: 12 },
+  show: { opacity: 1, y: 0, transition: { ease: [0.16, 1, 0.3, 1], duration: 0.6 } },
 };
 
 function FieldError({ msg }) {

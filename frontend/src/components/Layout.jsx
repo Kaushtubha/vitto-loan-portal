@@ -25,7 +25,7 @@ export default function Layout({ children }) {
   useEffect(() => { setMobileOpen(false); }, [location.pathname]);
 
   return (
-    <div className="min-h-screen flex text-slate-900 dark:text-slate-200 font-sans relative overflow-hidden bg-gradient-to-br from-[#f4f7fb] via-[#ffffff] to-[#fff0f3] dark:from-[#080b14] dark:via-[#0c111c] dark:to-[#170a11] transition-colors duration-500">
+    <div className="min-h-screen flex text-slate-900 dark:text-slate-200 font-sans relative overflow-hidden bg-gradient-to-br from-[#f4f7fb] via-[#ffffff] to-[#fff0f3] dark:bg-[#000000] transition-colors duration-500">
 
       {/* ── Background system ─────────────────────────────────── */}
       <ParticleBackground />
@@ -80,7 +80,7 @@ export default function Layout({ children }) {
                       background: 'linear-gradient(135deg, rgba(232,24,74,0.08) 0%, rgba(232,24,74,0.04) 100%)',
                       border: '1px solid rgba(232,24,74,0.15)',
                     }}
-                    transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+                    transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.5 }}
                   />
                 )}
                 {!active && (

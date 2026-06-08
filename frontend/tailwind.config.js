@@ -11,15 +11,15 @@ export default {
           600: '#cc0f3f', 700: '#a80933', 800: '#8a0a2c', 900: '#6e0a25',
         },
         dark: {
-          50: '#f9fafb', 100: '#f3f4f6', 200: '#e5e7eb', 300: '#d1d5db',
-          400: '#9ca3af', 500: '#6b7280', 600: '#4b5563', 700: '#374151',
-          750: '#2d3748', 800: '#1e2433', 850: '#181e2e', 900: '#0f1623',
-          950: '#090d18',
+          50: '#fafafa', 100: '#f5f5f5', 200: '#e5e5e5', 300: '#d4d4d4',
+          400: '#a3a3a3', 500: '#737373', 600: '#525252', 700: '#404040',
+          750: '#262626', 800: '#171717', 850: '#0f0f0f', 900: '#0a0a0a',
+          950: '#000000',
         },
       },
       fontFamily: {
-        sans:    ['Plus Jakarta Sans', 'sans-serif'],
-        display: ['Syne', 'sans-serif'],
+        sans:    ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         mono:    ['JetBrains Mono', 'monospace'],
       },
       boxShadow: {

@@ -86,8 +86,8 @@ function PieTooltip({ active, payload }) {
 }
 
 /* ─── Motion variants ───────────────────── */
-const stagger = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.06 } } };
-const rise    = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } } };
+const stagger = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.04 } } };
+const rise    = { hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0, transition: { ease: [0.16, 1, 0.3, 1], duration: 0.6 } } };
 
 /* ─────────────────────────────────────────── */
 export default function Dashboard() {
@@ -398,7 +398,7 @@ export default function Dashboard() {
         <div className="glass-panel rounded-2xl border border-white/40 dark:border-white/[0.05] overflow-hidden shadow-glass hover:shadow-[0_24px_60px_-12px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_24px_60px_-12px_rgba(255,255,255,0.05)] transition-all duration-300">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-slate-100/60 dark:divide-dark-800/40 text-sm">
-              <thead className="bg-slate-100/50 dark:bg-dark-900/60 backdrop-blur-md border-b border-slate-200/60 dark:border-white/10">
+              <thead className="bg-slate-50 dark:bg-[#050505] border-b border-slate-200/60 dark:border-white/[0.04]">
                 <tr>
                   {['ID / Date','Applicant','Mobile','Amount (₹)','Language','Status','Actions'].map(h => (
                     <th key={h} className="px-5 py-3.5 text-left text-[10px] font-display font-bold uppercase tracking-[0.1em] text-slate-400 dark:text-dark-500">
@@ -407,7 +407,7 @@ export default function Dashboard() {
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100/50 dark:divide-dark-800/30 bg-white/10 dark:bg-transparent">
+              <tbody className="divide-y divide-slate-100/50 dark:divide-white/[0.02] bg-transparent">
                 <AnimatePresence mode="wait">
                   {loading ? (
                     <SkeletonRow key="skel" />
@@ -431,7 +431,7 @@ export default function Dashboard() {
                           animate={{ opacity:1, y:0 }}
                           exit={{ opacity:0 }}
                           transition={{ delay: i * 0.04, duration: 0.25 }}
-                          className="group hover:bg-white/90 dark:hover:bg-brand-900/10 transition-all duration-200 cursor-default hover:shadow-sm dark:hover:shadow-[0_2px_15px_rgba(232,24,74,0.05)] hover:-translate-y-[1px] hover:scale-[1.002]"
+                          className="group hover:bg-white dark:hover:bg-[#111111] transition-all duration-200 cursor-default hover:shadow-sm dark:hover:shadow-[0_4px_20px_rgba(0,0,0,0.6)] hover:-translate-y-[1px] border-l-2 border-transparent hover:border-brand-500"
                         >
                           {/* ID + date */}
                           <td className="px-5 py-4 whitespace-nowrap">
