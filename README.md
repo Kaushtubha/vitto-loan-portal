@@ -12,8 +12,8 @@
 A premium, production-ready, full-stack Loan Application Portal built for a fintech operations team. It allows users to log, track, filter, and review customer loan applications. Inspired by the premium modern interfaces of leading SaaS platforms, it features a cinematic dark theme, fluid cubic-bezier animations, and optimized API data handling.
 
 ## 🚀 Live Demo
-- **Frontend URL**: [https://vitto-loan-portal-frontend.vercel.app](https://vitto-loan-portal-frontend.vercel.app) *(To be updated with your Vercel URL)*
-- **Backend URL**: [https://vitto-loan-portal-backend.onrender.com](https://vitto-loan-portal-backend.onrender.com) *(To be updated with your Render URL)*
+- **Frontend URL**: [https://vitto-loan-portal-ctra.vercel.app/](https://vitto-loan-portal-ctra.vercel.app/)
+- **Backend URL**: [https://vitto-loan-portal-dkoh.onrender.com/](https://vitto-loan-portal-dkoh.onrender.com/)
 
 ---
 

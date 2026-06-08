@@ -4,7 +4,7 @@
 **Project Role**: Full Stack Software Engineer (Intern Assessment)  
 **Submission Date**: June 2026  
 **Repository**: [https://github.com/Kaushtubha/vitto-loan-portal](https://github.com/Kaushtubha/vitto-loan-portal)  
-**Live Application URL**: [https://vitto-loan-portal-frontend.vercel.app](https://vitto-loan-portal-frontend.vercel.app)  
+**Live Application URL**: [https://vitto-loan-portal-ctra.vercel.app/](https://vitto-loan-portal-ctra.vercel.app/)  
 
 ---
 
