@@ -80,7 +80,7 @@ export default function Layout({ children }) {
                       background: 'linear-gradient(135deg, rgba(232,24,74,0.08) 0%, rgba(232,24,74,0.04) 100%)',
                       border: '1px solid rgba(232,24,74,0.15)',
                     }}
-                    transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+                    transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.5 }}
                   />
                 )}
                 {!active && (

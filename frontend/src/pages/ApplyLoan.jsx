@@ -18,11 +18,11 @@ const LANGUAGES = [
 
 const stagger = {
   hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.15 } },
+  show: { opacity: 1, transition: { staggerChildren: 0.05, delayChildren: 0.1 } },
 };
 const rise = {
-  hidden: { opacity: 0, y: 16 },
-  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 280, damping: 22 } },
+  hidden: { opacity: 0, y: 12 },
+  show: { opacity: 1, y: 0, transition: { ease: [0.16, 1, 0.3, 1], duration: 0.6 } },
 };
 
 function FieldError({ msg }) {
@@ -106,7 +106,7 @@ export default function ApplyLoan() {
         {!success && (
           <motion.div key="form"
             initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }}
-            exit={{ opacity:0, y:-16 }} transition={{ duration:0.3 }}>
+            exit={{ opacity:0, y:-12 }} transition={{ ease: [0.16, 1, 0.3, 1], duration:0.5 }}>
 
             {/* Page header */}
             <div className="mb-7 text-center sm:text-left">

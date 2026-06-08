@@ -86,8 +86,8 @@ function PieTooltip({ active, payload }) {
 }
 
 /* ─── Motion variants ───────────────────── */
-const stagger = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.06 } } };
-const rise    = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } } };
+const stagger = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.05 } } };
+const rise    = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { ease: [0.16, 1, 0.3, 1], duration: 0.6 } } };
 
 /* ─────────────────────────────────────────── */
 export default function Dashboard() {
@@ -401,7 +401,7 @@ export default function Dashboard() {
               <thead className="bg-slate-100/50 dark:bg-dark-900/60 backdrop-blur-md border-b border-slate-200/60 dark:border-white/10">
                 <tr>
                   {['ID / Date','Applicant','Mobile','Amount (₹)','Language','Status','Actions'].map(h => (
-                    <th key={h} className="px-5 py-3.5 text-left text-[10px] font-display font-bold uppercase tracking-[0.1em] text-slate-400 dark:text-dark-500">
+                    <th key={h} className={`px-5 py-4 text-[10px] font-display font-bold uppercase tracking-[0.1em] text-slate-400 dark:text-dark-500 ${h === 'Amount (₹)' ? 'text-right' : 'text-left'}`}>
                       {h}
                     </th>
                   ))}
@@ -431,10 +431,10 @@ export default function Dashboard() {
                           animate={{ opacity:1, y:0 }}
                           exit={{ opacity:0 }}
                           transition={{ delay: i * 0.04, duration: 0.25 }}
-                          className="group hover:bg-white/90 dark:hover:bg-brand-900/10 transition-all duration-200 cursor-default hover:shadow-sm dark:hover:shadow-[0_2px_15px_rgba(232,24,74,0.05)] hover:-translate-y-[1px] hover:scale-[1.002]"
+                          className="group hover:bg-white/90 dark:hover:bg-brand-900/10 transition-all duration-200 cursor-default hover:shadow-sm dark:hover:shadow-[0_2px_15px_rgba(232,24,74,0.05)] border-l-2 border-transparent hover:border-brand-500"
                         >
                           {/* ID + date */}
-                          <td className="px-5 py-4 whitespace-nowrap">
+                          <td className="px-5 py-4 whitespace-nowrap pl-4">
                             <div className="flex items-center gap-1.5">
                               <code className="text-[11px] font-mono font-semibold text-slate-400 dark:text-dark-500 group-hover:text-brand-500 transition-colors">
                                 {app.id.substring(0,8)}…
@@ -462,8 +462,8 @@ export default function Dashboard() {
                           </td>
 
                           {/* Amount */}
-                          <td className="px-5 py-4 whitespace-nowrap">
-                            <span className="font-display font-bold text-slate-800 dark:text-dark-100">
+                          <td className="px-5 py-4 whitespace-nowrap text-right">
+                            <span className="font-display font-bold tabular-nums tracking-tight text-slate-800 dark:text-dark-100 text-[14px]">
                               ₹{parseFloat(app.loan_amount).toLocaleString('en-IN')}
                             </span>
                           </td>
