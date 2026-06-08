@@ -431,7 +431,7 @@ export default function Dashboard() {
                           animate={{ opacity:1, y:0 }}
                           exit={{ opacity:0 }}
                           transition={{ delay: i * 0.04, duration: 0.25 }}
-                          className="group hover:bg-white/90 dark:hover:bg-dark-800/30 transition-all duration-200 cursor-default hover:shadow-sm"
+                          className="group hover:bg-white/90 dark:hover:bg-brand-900/10 transition-all duration-200 cursor-default hover:shadow-sm dark:hover:shadow-[0_2px_15px_rgba(232,24,74,0.05)]"
                         >
                           {/* ID + date */}
                           <td className="px-5 py-4 whitespace-nowrap">

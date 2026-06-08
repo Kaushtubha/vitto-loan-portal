@@ -22,7 +22,7 @@ const api = axios.create({
 
 export const useStore = create((set, get) => ({
   // Theme State
-  theme: localStorage.getItem('theme') || 'dark',
+  theme: 'dark',
   setTheme: (theme) => {
     localStorage.setItem('theme', theme);
     if (theme === 'dark') {

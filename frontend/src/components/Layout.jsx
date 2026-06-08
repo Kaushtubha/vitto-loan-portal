@@ -25,7 +25,7 @@ export default function Layout({ children }) {
   useEffect(() => { setMobileOpen(false); }, [location.pathname]);
 
   return (
-    <div className="min-h-screen flex text-slate-900 dark:text-slate-200 font-sans relative overflow-hidden bg-gradient-to-br from-[#f4f7fb] via-[#ffffff] to-[#fff0f3] dark:from-dark-950 dark:via-dark-950 dark:to-dark-950 transition-colors duration-500">
+    <div className="min-h-screen flex text-slate-900 dark:text-slate-200 font-sans relative overflow-hidden bg-gradient-to-br from-[#f4f7fb] via-[#ffffff] to-[#fff0f3] dark:from-[#080b14] dark:via-[#0c111c] dark:to-[#170a11] transition-colors duration-500">
 
       {/* ── Background system ─────────────────────────────────── */}
       <ParticleBackground />

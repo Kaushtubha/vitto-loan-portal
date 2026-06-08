@@ -63,6 +63,15 @@ export default function ParticleBackground() {
         transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
         className="absolute top-[60%] right-[30%] w-80 h-80 rounded-full bg-indigo-400/20 blur-[90px]"
       />
+      <motion.div
+        animate={{
+          y: [0, -40, 0],
+          x: [0, 30, 0],
+          scale: [1, 1.2, 1]
+        }}
+        transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
+        className="absolute bottom-[10%] left-[30%] w-96 h-96 rounded-full bg-rose-500/10 dark:bg-rose-500/15 blur-[100px]"
+      />
 
       {/* Subtle noise overlay */}
       <div 
