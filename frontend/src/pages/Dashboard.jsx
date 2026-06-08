@@ -192,6 +192,7 @@ export default function Dashboard() {
             accent: 'from-brand-500/8 to-transparent',
             iconColor: 'text-brand-500 dark:text-brand-400',
             iconBg: 'bg-brand-500/10 dark:bg-brand-500/15',
+            glow: 'hover:shadow-[0_24px_50px_-12px_rgba(232,24,74,0.35)] dark:hover:shadow-[0_24px_50px_-12px_rgba(232,24,74,0.5)] hover:border-brand-500/40 dark:hover:border-brand-500/50',
           },
           {
             label: 'Capital Requested', icon: Wallet, color: 'indigo',
@@ -200,6 +201,7 @@ export default function Dashboard() {
             accent: 'from-indigo-500/8 to-transparent',
             iconColor: 'text-indigo-500 dark:text-indigo-400',
             iconBg: 'bg-indigo-500/10 dark:bg-indigo-500/15',
+            glow: 'hover:shadow-[0_24px_50px_-12px_rgba(99,102,241,0.35)] dark:hover:shadow-[0_24px_50px_-12px_rgba(99,102,241,0.5)] hover:border-indigo-500/40 dark:hover:border-indigo-500/50',
           },
           {
             label: 'Approved Volume', icon: UserCheck, color: 'emerald',
@@ -208,6 +210,7 @@ export default function Dashboard() {
             accent: 'from-emerald-500/8 to-transparent',
             iconColor: 'text-emerald-500 dark:text-emerald-400',
             iconBg: 'bg-emerald-500/10 dark:bg-emerald-500/15',
+            glow: 'hover:shadow-[0_24px_50px_-12px_rgba(16,185,129,0.35)] dark:hover:shadow-[0_24px_50px_-12px_rgba(16,185,129,0.5)] hover:border-emerald-500/40 dark:hover:border-emerald-500/50',
           },
           {
             label: 'Pending Reviews', icon: Clock, color: 'amber',
@@ -216,11 +219,12 @@ export default function Dashboard() {
             accent: 'from-amber-500/8 to-transparent',
             iconColor: 'text-amber-500 dark:text-amber-400',
             iconBg: 'bg-amber-500/10 dark:bg-amber-500/15',
+            glow: 'hover:shadow-[0_24px_50px_-12px_rgba(245,158,11,0.35)] dark:hover:shadow-[0_24px_50px_-12px_rgba(245,158,11,0.5)] hover:border-amber-500/40 dark:hover:border-amber-500/50',
           },
-        ].map(({ label, icon: Icon, value, prefix='', sub, accent, iconColor, iconBg }) => (
+        ].map(({ label, icon: Icon, value, prefix='', sub, accent, iconColor, iconBg, glow }) => (
           <motion.div key={label} variants={rise}
-            whileHover={{ y: -4, transition: { duration: 0.2 } }}
-            className="glass-panel rounded-2xl p-5 relative overflow-hidden group cursor-default">
+            whileHover={{ y: -8, scale: 1.02, transition: { duration: 0.3, type: 'spring', stiffness: 300, damping: 20 } }}
+            className={`glass-panel rounded-2xl p-5 relative overflow-hidden group cursor-default transition-all duration-300 z-10 hover:z-20 ${glow}`}>
             <div className={`absolute inset-0 bg-gradient-to-br ${accent} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
             <div className="relative z-10">
               <div className="flex items-center justify-between mb-3">
