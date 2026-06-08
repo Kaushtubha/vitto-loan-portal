@@ -108,11 +108,6 @@ export default function Layout({ children }) {
               {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
           </div>
-          
-          <div className="mt-4 flex items-center gap-2 px-2">
-            <Sparkles className="w-3.5 h-3.5 text-brand-500 animate-pulse" />
-            <span className="text-[11px] font-medium text-slate-400 dark:text-dark-500">Vitto Intern Track 2026</span>
-          </div>
         </div>
       </aside>
 
@@ -203,9 +198,7 @@ export default function Layout({ children }) {
                 })}
               </div>
 
-              <div className="pt-4 border-t border-slate-200 dark:border-dark-800 text-center">
-                <span className="text-xs text-slate-400 dark:text-dark-500">Vitto Intern Track 2026</span>
-              </div>
+
             </motion.nav>
           </>
         )}
