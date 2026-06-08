@@ -19,7 +19,8 @@ import {
   Calendar,
   Layers,
   Activity,
-  ArrowRightLeft
+  ArrowRightLeft,
+  Languages
 } from 'lucide-react';
 import { 
   ResponsiveContainer, 
