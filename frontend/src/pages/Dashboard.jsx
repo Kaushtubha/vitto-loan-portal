@@ -47,7 +47,8 @@ export default function Dashboard() {
     loading, 
     fetchApplications, 
     fetchSummary, 
-    updateStatus 
+    updateStatus,
+    theme
   } = useStore();
 
   const navigate = useNavigate();
@@ -173,6 +174,22 @@ export default function Dashboard() {
     date: new Date(app.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
     amount: parseFloat(app.loan_amount)
   })) || [];
+
+  // Theme-aware Tooltip Styling
+  const isDark = theme === 'dark';
+  const tooltipContentStyle = {
+    background: isDark ? 'rgba(17, 24, 39, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+    border: isDark ? 'none' : '1px solid rgba(226, 232, 240, 0.8)',
+    borderRadius: '10px',
+    boxShadow: isDark ? '0 10px 25px rgba(0,0,0,0.3)' : '0 10px 25px rgba(0,0,0,0.05)',
+    fontSize: '11px',
+  };
+  const tooltipItemStyle = {
+    color: isDark ? '#ffffff' : '#0f172a',
+  };
+  const tooltipLabelStyle = {
+    color: isDark ? '#9ca3af' : '#64748b',
+  };
 
   return (
     <div className="space-y-5">
@@ -303,14 +320,9 @@ export default function Dashboard() {
                   <XAxis dataKey="date" stroke="#6b7280" opacity={0.4} tickLine={false} />
                   <YAxis stroke="#6b7280" opacity={0.4} tickLine={false} />
                   <Tooltip 
-                    contentStyle={{ 
-                      background: 'rgba(17, 24, 39, 0.95)', 
-                      border: 'none', 
-                      borderRadius: '12px',
-                      boxShadow: '0 10px 25px rgba(0,0,0,0.1)'
-                    }} 
-                    itemStyle={{ color: '#fff' }}
-                    labelStyle={{ color: '#6b7280' }}
+                    contentStyle={tooltipContentStyle} 
+                    itemStyle={tooltipItemStyle}
+                    labelStyle={tooltipLabelStyle}
                     formatter={(value) => [`₹${value.toLocaleString('en-IN')}`, 'Amount']}
                   />
                   <Area type="monotone" dataKey="amount" stroke="#6366f1" strokeWidth={2} fillOpacity={1} fill="url(#colorAmount)" />
