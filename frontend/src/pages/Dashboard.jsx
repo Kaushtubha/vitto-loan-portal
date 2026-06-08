@@ -254,7 +254,7 @@ export default function Dashboard() {
                   <Icon size={15} className={iconColor} />
                 </div>
               </div>
-              <div className="font-display font-extrabold text-3xl text-slate-900 dark:text-white tracking-tight leading-none">
+              <div className="font-sans font-bold text-3xl text-slate-900 dark:text-white tracking-tight leading-none">
                 <AnimatedCounter value={value} prefix={prefix} />
               </div>
               <div className="mt-3 text-[11px] font-medium text-slate-400 dark:text-dark-500 flex items-center gap-1">
@@ -471,7 +471,7 @@ export default function Dashboard() {
 
                           {/* Amount */}
                           <td className="px-5 py-3.5 whitespace-nowrap text-right pr-8 align-middle">
-                            <span className="font-display font-semibold tabular-nums tracking-tight text-slate-700 dark:text-dark-200 text-[13px]">
+                            <span className="font-sans font-semibold tabular-nums tracking-tight text-slate-700 dark:text-dark-200 text-[14px]">
                               ₹{parseFloat(app.loan_amount).toLocaleString('en-IN')}
                             </span>
                           </td>
@@ -588,7 +588,7 @@ export default function Dashboard() {
                   <div className="grid grid-cols-2 gap-3 pt-1">
                     <div>
                       <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-dark-600 mb-1">Loan Amount</p>
-                      <p className="font-display font-bold text-slate-800 dark:text-dark-100">₹{parseFloat(modalApp.loan_amount).toLocaleString('en-IN')}</p>
+                      <p className="font-sans font-bold text-slate-800 dark:text-dark-100">₹{parseFloat(modalApp.loan_amount).toLocaleString('en-IN')}</p>
                     </div>
                     <div>
                       <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-dark-600 mb-1">Current Status</p>

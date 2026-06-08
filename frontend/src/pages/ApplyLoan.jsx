@@ -195,7 +195,7 @@ export default function ApplyLoan() {
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-dark-500 font-bold text-sm pointer-events-none group-focus-within:text-brand-500 transition-colors">₹</span>
                     <input name="loan_amount" type="number" value={form.loan_amount}
                       onChange={handleChange} placeholder="50000" min="1"
-                      className={`input-base pl-8 pr-4 py-3 font-display font-bold ${errors.loan_amount ? 'error' : ''}`} />
+                      className={`input-base pl-8 pr-4 py-3 font-sans font-semibold ${errors.loan_amount ? 'error' : ''}`} />
                   </div>
                   <FieldError msg={errors.loan_amount} />
                 </motion.div>
@@ -288,7 +288,7 @@ export default function ApplyLoan() {
                 ].map(([k, v]) => (
                   <div key={k} className="flex justify-between items-center text-sm border-b border-slate-100/60 dark:border-dark-800/40 last:border-0 pb-2.5 last:pb-0">
                     <span className="text-slate-500 dark:text-dark-400 font-medium">{k}</span>
-                    <span className="font-display font-bold text-slate-800 dark:text-dark-100">{v}</span>
+                    <span className="font-sans font-semibold text-slate-800 dark:text-dark-100">{v}</span>
                   </div>
                 ))}
               </motion.div>
