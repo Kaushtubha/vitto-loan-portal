@@ -4,7 +4,7 @@ import {
   Search, Filter, Download, Clock, CheckCircle2, XCircle, Copy, Check,
   Plus, ChevronLeft, ChevronRight, TrendingUp, UserCheck, RefreshCw,
   Sparkles, Calendar, Layers, Activity, ArrowRightLeft, Languages,
-  BarChart3, Wallet, AlertCircle, ArrowUpRight,
+  BarChart3, Wallet, AlertCircle, ArrowUpRight, Inbox,
 } from 'lucide-react';
 import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip,
@@ -181,16 +181,28 @@ export default function Dashboard() {
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-          <motion.button whileHover={{ scale:1.05 }} whileTap={{ scale:0.95 }}
-            onClick={handleRefresh}
-            className="btn-ghost p-2.5 !px-2.5" title="Refresh">
-            <RefreshCw size={15} className={refreshing ? 'animate-spin' : ''} />
-          </motion.button>
-          <motion.button whileHover={{ scale:1.05 }} whileTap={{ scale:0.95 }}
-            onClick={exportCSV}
-            className="btn-ghost gap-2">
-            <Download size={14} /> <span className="hidden sm:inline">Export CSV</span>
-          </motion.button>
+          <div className="relative group">
+            <motion.button whileHover={{ scale:1.05 }} whileTap={{ scale:0.95 }}
+              onClick={handleRefresh}
+              className="btn-ghost p-2.5 !px-2.5">
+              <RefreshCw size={15} className={refreshing ? 'animate-spin' : ''} />
+            </motion.button>
+            <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 px-2 py-1 bg-slate-800 dark:bg-white text-white dark:text-slate-900 text-[10px] font-bold uppercase tracking-wider rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-xl z-50">
+              Refresh Data
+            </div>
+          </div>
+          
+          <div className="relative group">
+            <motion.button whileHover={{ scale:1.05 }} whileTap={{ scale:0.95 }}
+              onClick={exportCSV}
+              className="btn-ghost gap-2">
+              <Download size={14} /> <span className="hidden sm:inline">Export CSV</span>
+            </motion.button>
+            <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 px-2 py-1 bg-slate-800 dark:bg-white text-white dark:text-slate-900 text-[10px] font-bold uppercase tracking-wider rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-xl z-50 sm:hidden">
+              Export CSV
+            </div>
+          </div>
+
           <motion.button whileHover={{ scale:1.05 }} whileTap={{ scale:0.95 }}
             onClick={() => navigate('/apply')}
             className="btn-primary flex items-center gap-2">
@@ -421,12 +433,29 @@ export default function Dashboard() {
                     <SkeletonRow key="skel" />
                   ) : applications.length === 0 ? (
                     <motion.tr key="empty" initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}>
-                      <td colSpan={7}>
-                        <div className="flex flex-col items-center justify-center gap-3 py-16 text-slate-400 dark:text-dark-600">
-                          <AlertCircle size={32} strokeWidth={1.2} />
-                          <p className="font-semibold text-sm text-slate-500 dark:text-dark-500">No applications found</p>
-                          <p className="text-xs">Adjust your search or filter, or submit a new application.</p>
-                        </div>
+                      <td colSpan={7} className="py-20 text-center">
+                        <motion.div
+                          initial={{ opacity:0, scale: 0.95 }}
+                          animate={{ opacity:1, scale: 1 }}
+                          className="max-w-xs mx-auto flex flex-col items-center justify-center gap-4 text-slate-400 dark:text-dark-500"
+                        >
+                          <div className="relative">
+                            <motion.div 
+                              animate={{ scale: [1, 1.1, 1], opacity: [0.1, 0.2, 0.1] }}
+                              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                              className="absolute inset-0 bg-brand-500 rounded-full blur-xl"
+                            />
+                            <div className="relative w-16 h-16 rounded-2xl bg-white/50 dark:bg-dark-800/50 border border-slate-200 dark:border-dark-700 flex items-center justify-center shadow-sm">
+                              <Inbox size={24} className="text-slate-400 dark:text-dark-400" />
+                            </div>
+                          </div>
+                          <div>
+                            <p className="font-display font-bold text-base text-slate-700 dark:text-dark-200 mb-1">No Data Found</p>
+                            <p className="text-[12px] font-medium leading-relaxed text-slate-500 dark:text-dark-400">
+                              No applications match your current filters. Adjust your search or create a new one.
+                            </p>
+                          </div>
+                        </motion.div>
                       </td>
                     </motion.tr>
                   ) : (

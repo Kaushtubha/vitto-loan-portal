@@ -75,9 +75,28 @@ export default function ApplyLoan() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm(p => ({ ...p, [name]: value }));
-    if (errors[name]) setErrors(p => ({ ...p, [name]: '' }));
+    setForm(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
+
+  const isValid = {
+    name: form.applicant_name.trim().length > 2,
+    mobile: form.mobile_number.trim().length === 10,
+    amount: form.loan_amount && Number(form.loan_amount) > 0,
+    purpose: form.loan_purpose.trim().length > 5,
+    lang: !!form.preferred_language,
+  };
+
+  const calculateProgress = () => {
+    let filled = 0;
+    if (isValid.name) filled++;
+    if (isValid.mobile) filled++;
+    if (isValid.amount) filled++;
+    if (isValid.purpose) filled++;
+    if (isValid.lang) filled++;
+    return (filled / 5) * 100;
+  };
+  const progress = calculateProgress();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -127,16 +146,25 @@ export default function ApplyLoan() {
             {/* Card */}
             <div className="glass-panel rounded-3xl relative overflow-hidden
               border border-white/50 dark:border-white/[0.05] shadow-premium">
-              {/* Top accent bar */}
-              <div className="h-1" style={{ background:'linear-gradient(90deg,#e8184a 0%,#a80933 60%,#6366f1 100%)' }} />
+              {/* Top accent bar & Progress */}
+              <div className="relative h-1 w-full bg-slate-100 dark:bg-dark-800">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progress}%` }}
+                  transition={{ ease: "easeOut", duration: 0.5 }}
+                  className="absolute inset-y-0 left-0"
+                  style={{ background:'linear-gradient(90deg,#e8184a 0%,#a80933 60%,#6366f1 100%)' }} 
+                />
+              </div>
 
               <motion.form variants={stagger} initial="hidden" animate="show"
                 onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-5">
 
                 {/* Name */}
                 <motion.div variants={rise} className="space-y-1.5 group">
-                  <label className="block text-[11px] font-display font-bold uppercase tracking-widest text-slate-500 dark:text-dark-400 group-focus-within:text-brand-500 transition-colors">
-                    Applicant Name
+                  <label className="flex items-center justify-between text-[11px] font-display font-bold uppercase tracking-widest text-slate-500 dark:text-dark-400 group-focus-within:text-brand-500 transition-colors">
+                    <span>Applicant Name</span>
+                    {isValid.name && <CheckCircle2 size={13} className="text-emerald-500" />}
                   </label>
                   <div className="relative focus-within:scale-[1.01] transition-transform duration-300">
                     <User size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-dark-500 pointer-events-none group-focus-within:text-brand-500 transition-colors" />
@@ -150,8 +178,9 @@ export default function ApplyLoan() {
                 {/* Mobile + Language */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <motion.div variants={rise} className="space-y-1.5 group">
-                    <label className="block text-[11px] font-display font-bold uppercase tracking-widest text-slate-500 dark:text-dark-400 group-focus-within:text-brand-500 transition-colors">
-                      Mobile Number
+                    <label className="flex items-center justify-between text-[11px] font-display font-bold uppercase tracking-widest text-slate-500 dark:text-dark-400 group-focus-within:text-brand-500 transition-colors">
+                      <span>Mobile Number</span>
+                      {isValid.mobile && <CheckCircle2 size={13} className="text-emerald-500" />}
                     </label>
                     <div className="relative focus-within:scale-[1.01] transition-transform duration-300">
                       <Phone size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-dark-500 pointer-events-none group-focus-within:text-brand-500 transition-colors" />
@@ -163,8 +192,9 @@ export default function ApplyLoan() {
                   </motion.div>
 
                   <motion.div variants={rise} className="space-y-1.5 group">
-                    <label className="block text-[11px] font-display font-bold uppercase tracking-widest text-slate-500 dark:text-dark-400 group-focus-within:text-brand-500 transition-colors">
-                      Preferred Language
+                    <label className="flex items-center justify-between text-[11px] font-display font-bold uppercase tracking-widest text-slate-500 dark:text-dark-400 group-focus-within:text-brand-500 transition-colors">
+                      <span>Preferred Language</span>
+                      {isValid.lang && <CheckCircle2 size={13} className="text-emerald-500" />}
                     </label>
                     <div className="relative focus-within:scale-[1.01] transition-transform duration-300">
                       <Languages size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-dark-500 pointer-events-none group-focus-within:text-brand-500 transition-colors" />
@@ -188,8 +218,9 @@ export default function ApplyLoan() {
 
                 {/* Amount */}
                 <motion.div variants={rise} className="space-y-1.5 group">
-                  <label className="block text-[11px] font-display font-bold uppercase tracking-widest text-slate-500 dark:text-dark-400 group-focus-within:text-brand-500 transition-colors">
-                    Loan Amount (₹)
+                  <label className="flex items-center justify-between text-[11px] font-display font-bold uppercase tracking-widest text-slate-500 dark:text-dark-400 group-focus-within:text-brand-500 transition-colors">
+                    <span>Loan Amount (₹)</span>
+                    {isValid.amount && <CheckCircle2 size={13} className="text-emerald-500" />}
                   </label>
                   <div className="relative focus-within:scale-[1.01] transition-transform duration-300">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-dark-500 font-bold text-sm pointer-events-none group-focus-within:text-brand-500 transition-colors">₹</span>
@@ -202,8 +233,9 @@ export default function ApplyLoan() {
 
                 {/* Purpose */}
                 <motion.div variants={rise} className="space-y-1.5 group">
-                  <label className="block text-[11px] font-display font-bold uppercase tracking-widest text-slate-500 dark:text-dark-400 group-focus-within:text-brand-500 transition-colors">
-                    Loan Purpose
+                  <label className="flex items-center justify-between text-[11px] font-display font-bold uppercase tracking-widest text-slate-500 dark:text-dark-400 group-focus-within:text-brand-500 transition-colors">
+                    <span>Loan Purpose</span>
+                    {isValid.purpose && <CheckCircle2 size={13} className="text-emerald-500" />}
                   </label>
                   <div className="relative focus-within:scale-[1.01] transition-transform duration-300">
                     <FileText size={15} className="absolute left-3.5 top-3.5 text-slate-400 dark:text-dark-500 pointer-events-none group-focus-within:text-brand-500 transition-colors" />
