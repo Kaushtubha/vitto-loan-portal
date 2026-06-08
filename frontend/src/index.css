@@ -6,7 +6,7 @@
 
 @layer base {
   html, body {
-    @apply font-sans bg-slate-50 text-slate-900 transition-colors duration-500 overflow-x-hidden;
+    @apply font-sans bg-slate-50 text-slate-900 transition-colors duration-300 overflow-x-hidden;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
   
@@ -16,61 +16,16 @@
 }
 
 @layer utilities {
-  /* Ultra-Premium Glassmorphism */
   .glass-card {
-    @apply bg-white/70 backdrop-blur-xl border border-white/40 shadow-premium transition-all duration-300;
+    @apply bg-white/60 backdrop-blur-md border border-white/20 shadow-premium;
   }
   
   .dark .glass-card {
-    @apply bg-dark-900/40 backdrop-blur-xl border border-white/[0.06] shadow-premium transition-all duration-300;
+    @apply bg-dark-900/60 backdrop-blur-md border border-dark-800/60 shadow-premium;
   }
 
-  /* Glass card with neon glow border */
-  .glass-card-glow {
-    @apply glass-card relative overflow-hidden;
-  }
-  
-  .glass-card-glow::before {
-    content: '';
-    @apply absolute inset-0 opacity-0 transition-opacity duration-500 -z-10 pointer-events-none;
-    background: radial-gradient(800px circle at var(--mouse-x, 0) var(--mouse-y, 0), rgba(99, 102, 241, 0.06), transparent 40%);
-  }
-
-  .dark .glass-card-glow::before {
-    background: radial-gradient(800px circle at var(--mouse-x, 0) var(--mouse-y, 0), rgba(99, 102, 241, 0.15), transparent 40%);
-  }
-
-  .glass-card-glow:hover::before {
-    @apply opacity-100;
-  }
-
-  /* Text glow */
   .text-glow {
-    text-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
-  }
-
-  .text-glow-emerald {
-    text-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
-  }
-
-  /* Interactive premium scale */
-  .hover-lift {
-    @apply hover:-translate-y-1 hover:scale-[1.02] hover:shadow-premium-hover transition-all duration-300 ease-out;
-  }
-
-  /* Floating animation */
-  .animate-float-slow {
-    animation: float 20s ease-in-out infinite;
-  }
-
-  .animate-float-delayed {
-    animation: float 25s ease-in-out infinite;
-    animation-delay: -5s;
-  }
-
-  .animate-float-fast {
-    animation: float 15s ease-in-out infinite;
-    animation-delay: -10s;
+    text-shadow: 0 0 12px rgba(99, 102, 241, 0.4);
   }
 }
 
@@ -89,19 +44,7 @@
   @apply bg-dark-800/80 rounded-full hover:bg-dark-700/80 transition-colors;
 }
 
-/* Animations */
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0) scale(1) rotate(0deg);
-  }
-  33% {
-    transform: translateY(-30px) scale(1.1) rotate(120deg);
-  }
-  66% {
-    transform: translateY(20px) scale(0.9) rotate(240deg);
-  }
-}
-
+/* Custom loader spinner animation */
 @keyframes spin-slow {
   from {
     transform: rotate(0deg);
@@ -112,6 +55,5 @@
 }
 
 .animate-spin-slow {
-  animation: spin-slow 8s linear infinite;
+  animation: spin-slow 3s linear infinite;
 }
-

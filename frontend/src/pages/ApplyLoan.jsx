@@ -111,6 +111,7 @@ export default function ApplyLoan() {
       }
     } catch (err) {
       console.error(err);
+      // Backend error toasts are handled in the Zustand store
     }
   };
 
@@ -136,11 +137,11 @@ export default function ApplyLoan() {
           >
             {/* Header */}
             <div className="flex flex-col gap-2 mb-8 text-center sm:text-left">
-              <div className="flex items-center justify-center sm:justify-start gap-1.5 text-brand-500 font-bold text-xs uppercase tracking-widest">
-                <Sparkles className="w-4 h-4 animate-pulse" />
+              <div className="flex items-center justify-center sm:justify-start gap-2 text-brand-500 font-semibold text-sm uppercase tracking-wider">
+                <Sparkles className="w-4 h-4" />
                 <span>Quick Loan Application</span>
               </div>
-              <h2 className="text-3xl font-extrabold font-sans tracking-tight bg-gradient-to-r from-slate-900 via-brand-950 to-brand-600 dark:from-white dark:via-dark-100 dark:to-brand-400 bg-clip-text text-transparent">
+              <h2 className="text-3xl font-extrabold font-sans tracking-tight bg-gradient-to-r from-slate-900 via-indigo-950 to-brand-600 dark:from-white dark:via-dark-100 dark:to-brand-400 bg-clip-text text-transparent">
                 Apply for a Loan
               </h2>
               <p className="text-slate-500 dark:text-dark-400 text-sm">
@@ -149,20 +150,20 @@ export default function ApplyLoan() {
             </div>
 
             {/* Form Card */}
-            <div className="glass-card rounded-3xl p-6 sm:p-8 border border-slate-200/50 dark:border-white/[0.06] relative overflow-hidden shadow-premium">
+            <div className="glass-card rounded-2xl p-6 sm:p-8 border border-slate-200/50 dark:border-dark-800/40 relative overflow-hidden">
               {/* Card top gradient indicator */}
-              <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-brand-500 via-indigo-500 to-indigo-600" />
+              <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-brand-500 via-indigo-500 to-indigo-600" />
               
               <form onSubmit={handleSubmit} className="space-y-6">
                 
                 {/* Applicant Name */}
                 <div className="space-y-2">
-                  <label htmlFor="applicant_name" className="block text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-dark-500">
+                  <label htmlFor="applicant_name" className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-dark-400">
                     Applicant Name
                   </label>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 dark:text-dark-500">
-                      <User className="w-4 h-4" />
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-dark-500">
+                      <User className="w-4.5 h-4.5" />
                     </div>
                     <input
                       type="text"
@@ -171,29 +172,29 @@ export default function ApplyLoan() {
                       value={formData.applicant_name}
                       onChange={handleChange}
                       placeholder="e.g. Rajesh Kumar"
-                      className={`w-full pl-11 pr-4 py-3.5 rounded-2xl bg-white/50 dark:bg-white/[0.02] border text-sm transition-all duration-300 outline-none focus:ring-4 focus:ring-brand-500/10 ${
+                      className={`w-full pl-10 pr-4 py-3 rounded-xl bg-slate-100/50 dark:bg-dark-900/40 border text-sm transition-all outline-none focus:ring-2 focus:ring-brand-500/20 ${
                         errors.applicant_name
                           ? 'border-red-500/50 focus:border-red-500/50 text-red-600 dark:text-red-400'
-                          : 'border-slate-200 dark:border-white/10 focus:border-brand-500'
+                          : 'border-slate-200/60 dark:border-dark-800/60 focus:border-brand-500'
                       }`}
                     />
                   </div>
                   {errors.applicant_name && (
-                    <p className="text-xs text-red-500 font-semibold pl-1">{errors.applicant_name}</p>
+                    <p className="text-xs text-red-500 font-medium pl-1">{errors.applicant_name}</p>
                   )}
                 </div>
 
-                {/* Mobile Number & Preferred Language */}
+                {/* Mobile Number & Preferred Language (2 columns) */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   
                   {/* Mobile Number */}
                   <div className="space-y-2">
-                    <label htmlFor="mobile_number" className="block text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-dark-500">
+                    <label htmlFor="mobile_number" className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-dark-400">
                       Mobile Number
                     </label>
                     <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 dark:text-dark-500">
-                        <Phone className="w-4 h-4" />
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-dark-500">
+                        <Phone className="w-4.5 h-4.5" />
                       </div>
                       <input
                         type="tel"
@@ -203,65 +204,66 @@ export default function ApplyLoan() {
                         onChange={handleChange}
                         placeholder="e.g. 9876543210"
                         maxLength={10}
-                        className={`w-full pl-11 pr-4 py-3.5 rounded-2xl bg-white/50 dark:bg-white/[0.02] border text-sm transition-all duration-300 outline-none focus:ring-4 focus:ring-brand-500/10 ${
+                        className={`w-full pl-10 pr-4 py-3 rounded-xl bg-slate-100/50 dark:bg-dark-900/40 border text-sm transition-all outline-none focus:ring-2 focus:ring-brand-500/20 ${
                           errors.mobile_number
                             ? 'border-red-500/50 focus:border-red-500/50 text-red-600 dark:text-red-400'
-                            : 'border-slate-200 dark:border-white/10 focus:border-brand-500'
+                            : 'border-slate-200/60 dark:border-dark-800/60 focus:border-brand-500'
                         }`}
                       />
                     </div>
                     {errors.mobile_number && (
-                      <p className="text-xs text-red-500 font-semibold pl-1">{errors.mobile_number}</p>
+                      <p className="text-xs text-red-500 font-medium pl-1">{errors.mobile_number}</p>
                     )}
                   </div>
 
                   {/* Preferred Language */}
                   <div className="space-y-2">
-                    <label htmlFor="preferred_language" className="block text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-dark-500">
+                    <label htmlFor="preferred_language" className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-dark-400">
                       Preferred Language
                     </label>
                     <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 dark:text-dark-500">
-                        <Languages className="w-4 h-4" />
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-dark-500">
+                        <Languages className="w-4.5 h-4.5" />
                       </div>
                       <select
                         id="preferred_language"
                         name="preferred_language"
                         value={formData.preferred_language}
                         onChange={handleChange}
-                        className={`w-full pl-11 pr-10 py-3.5 rounded-2xl bg-white/50 dark:bg-white/[0.02] border text-sm transition-all duration-300 outline-none focus:ring-4 focus:ring-brand-500/10 appearance-none ${
+                        className={`w-full pl-10 pr-4 py-3 rounded-xl bg-slate-100/50 dark:bg-dark-900/40 border text-sm transition-all outline-none focus:ring-2 focus:ring-brand-500/20 appearance-none ${
                           errors.preferred_language
                             ? 'border-red-500/50 focus:border-red-500/50 text-red-600 dark:text-red-400'
-                            : 'border-slate-200 dark:border-white/10 focus:border-brand-500'
+                            : 'border-slate-200/60 dark:border-dark-800/60 focus:border-brand-500'
                         }`}
                       >
-                        <option value="" disabled className="text-slate-400 dark:bg-dark-900">Select language</option>
-                        <option value="English" className="dark:bg-dark-900">English</option>
-                        <option value="Hindi" className="dark:bg-dark-900">Hindi (हिंदी)</option>
-                        <option value="Tamil" className="dark:bg-dark-900">Tamil (தமிழ்)</option>
-                        <option value="Telugu" className="dark:bg-dark-900">Telugu (తెలుగు)</option>
-                        <option value="Marathi" className="dark:bg-dark-900">Marathi (मराठी)</option>
+                        <option value="" disabled className="text-slate-400">Select language</option>
+                        <option value="English">English</option>
+                        <option value="Hindi">Hindi (हिंदी)</option>
+                        <option value="Tamil">Tamil (தமிழ்)</option>
+                        <option value="Telugu">Telugu (తెలుగు)</option>
+                        <option value="Marathi">Marathi (मराठी)</option>
                       </select>
                       
-                      <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-slate-400 dark:text-dark-500">
+                      {/* Custom dropdown arrow */}
+                      <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400 dark:text-dark-500">
                         <svg className="h-4 w-4 fill-current" viewBox="0 0 20 20">
                           <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
                         </svg>
                       </div>
                     </div>
                     {errors.preferred_language && (
-                      <p className="text-xs text-red-500 font-semibold pl-1">{errors.preferred_language}</p>
+                      <p className="text-xs text-red-500 font-medium pl-1">{errors.preferred_language}</p>
                     )}
                   </div>
                 </div>
 
                 {/* Loan Amount */}
                 <div className="space-y-2">
-                  <label htmlFor="loan_amount" className="block text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-dark-500">
+                  <label htmlFor="loan_amount" className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-dark-400">
                     Loan Amount (₹)
                   </label>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none text-slate-500 dark:text-dark-400 font-extrabold text-sm">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-dark-500 font-semibold text-base">
                       ₹
                     </div>
                     <input
@@ -271,26 +273,26 @@ export default function ApplyLoan() {
                       value={formData.loan_amount}
                       onChange={handleChange}
                       placeholder="e.g. 50000"
-                      className={`w-full pl-9 pr-4 py-3.5 rounded-2xl bg-white/50 dark:bg-white/[0.02] border text-sm transition-all duration-300 outline-none focus:ring-4 focus:ring-brand-500/10 ${
+                      className={`w-full pl-8 pr-4 py-3 rounded-xl bg-slate-100/50 dark:bg-dark-900/40 border text-sm transition-all outline-none focus:ring-2 focus:ring-brand-500/20 ${
                         errors.loan_amount
                           ? 'border-red-500/50 focus:border-red-500/50 text-red-600 dark:text-red-400'
-                          : 'border-slate-200 dark:border-white/10 focus:border-brand-500'
+                          : 'border-slate-200/60 dark:border-dark-800/60 focus:border-brand-500'
                       }`}
                     />
                   </div>
                   {errors.loan_amount && (
-                    <p className="text-xs text-red-500 font-semibold pl-1">{errors.loan_amount}</p>
+                    <p className="text-xs text-red-500 font-medium pl-1">{errors.loan_amount}</p>
                   )}
                 </div>
 
                 {/* Loan Purpose */}
                 <div className="space-y-2">
-                  <label htmlFor="loan_purpose" className="block text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-dark-500">
+                  <label htmlFor="loan_purpose" className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-dark-400">
                     Loan Purpose / Description
                   </label>
                   <div className="relative">
-                    <div className="absolute top-4 left-4 pointer-events-none text-slate-400 dark:text-dark-500">
-                      <FileText className="w-4 h-4" />
+                    <div className="absolute top-3.5 left-3.5 pointer-events-none text-slate-400 dark:text-dark-500">
+                      <FileText className="w-4.5 h-4.5" />
                     </div>
                     <textarea
                       id="loan_purpose"
@@ -298,16 +300,16 @@ export default function ApplyLoan() {
                       value={formData.loan_purpose}
                       onChange={handleChange}
                       rows={4}
-                      placeholder="Describe your loan usage plan (e.g. business expansion, medical, educational)..."
-                      className={`w-full pl-11 pr-4 py-3.5 rounded-2xl bg-white/50 dark:bg-white/[0.02] border text-sm transition-all duration-300 outline-none focus:ring-4 focus:ring-brand-500/10 resize-none ${
+                      placeholder="Please describe why you need this loan (e.g. Business expansion, medical emergency, educational fees)..."
+                      className={`w-full pl-10 pr-4 py-3 rounded-xl bg-slate-100/50 dark:bg-dark-900/40 border text-sm transition-all outline-none focus:ring-2 focus:ring-brand-500/20 resize-none ${
                         errors.loan_purpose
                           ? 'border-red-500/50 focus:border-red-500/50 text-red-600 dark:text-red-400'
-                          : 'border-slate-200 dark:border-white/10 focus:border-brand-500'
+                          : 'border-slate-200/60 dark:border-dark-800/60 focus:border-brand-500'
                       }`}
                     />
                   </div>
                   {errors.loan_purpose && (
-                    <p className="text-xs text-red-500 font-semibold pl-1">{errors.loan_purpose}</p>
+                    <p className="text-xs text-red-500 font-medium pl-1">{errors.loan_purpose}</p>
                   )}
                 </div>
 
@@ -316,14 +318,14 @@ export default function ApplyLoan() {
                   <button
                     type="button"
                     onClick={() => navigate('/')}
-                    className="flex-1 px-4 py-3.5 rounded-2xl border border-slate-200 dark:border-white/10 hover:bg-slate-100/60 dark:hover:bg-white/[0.04] text-sm font-bold transition-all duration-300 text-slate-700 dark:text-dark-200"
+                    className="flex-1 px-4 py-3 rounded-xl border border-slate-200 dark:border-dark-800 hover:bg-slate-100/60 dark:hover:bg-dark-800/40 text-sm font-semibold transition-colors text-slate-700 dark:text-dark-300"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={loading}
-                    className="flex-1 px-4 py-3.5 rounded-2xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-bold text-sm shadow-premium flex items-center justify-center gap-2 transition-all duration-300 hover:shadow-premium-hover hover:-translate-y-0.5 disabled:opacity-50"
+                    className="flex-1 px-4 py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-sm shadow-premium flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
                   >
                     {loading ? (
                       <>
@@ -346,14 +348,14 @@ export default function ApplyLoan() {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-            className="text-center py-6"
+            className="text-center py-10"
           >
             {/* Success Card */}
-            <div className="glass-card rounded-3xl p-8 sm:p-10 border border-slate-200/50 dark:border-white/[0.06] shadow-premium-hover max-w-xl mx-auto relative overflow-hidden">
+            <div className="glass-card rounded-3xl p-8 sm:p-10 border border-slate-200/50 dark:border-dark-800/40 shadow-premium max-w-xl mx-auto relative overflow-hidden">
               <div className="absolute top-0 inset-x-0 h-1.5 bg-emerald-500" />
               
               {/* Checkmark Animation */}
-              <div className="mx-auto flex items-center justify-center w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 mb-6 border-4 border-emerald-50/50 dark:border-emerald-500/10 shadow-glow">
+              <div className="mx-auto flex items-center justify-center w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 mb-6 border-4 border-emerald-50/50 dark:border-emerald-500/10">
                 <Check className="w-8 h-8 stroke-[3]" />
               </div>
 
@@ -365,37 +367,37 @@ export default function ApplyLoan() {
               </p>
 
               {/* Application Details Summary */}
-              <div className="bg-slate-100/50 dark:bg-white/[0.01] border border-slate-200/30 dark:border-white/[0.05] rounded-2xl p-5 mb-8 text-left space-y-3">
-                <div className="flex justify-between items-center text-xs font-bold border-b border-slate-200/40 dark:border-white/[0.06] pb-2">
+              <div className="bg-slate-100/50 dark:bg-dark-900/40 border border-slate-200/30 dark:border-dark-800/30 rounded-2xl p-5 mb-8 text-left space-y-3">
+                <div className="flex justify-between items-center text-xs font-semibold border-b border-slate-200/40 dark:border-dark-850/40 pb-2">
                   <span className="text-slate-400 dark:text-dark-500 uppercase">Field</span>
                   <span className="text-slate-400 dark:text-dark-500 uppercase">Value</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-500 dark:text-dark-400 font-medium">Applicant Name</span>
-                  <span className="font-extrabold text-slate-800 dark:text-dark-100">{submittedApp.applicant_name}</span>
+                  <span className="text-slate-500 dark:text-dark-400">Applicant Name</span>
+                  <span className="font-semibold text-slate-800 dark:text-dark-100">{submittedApp.applicant_name}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-500 dark:text-dark-400 font-medium">Loan Amount</span>
-                  <span className="font-extrabold text-slate-800 dark:text-dark-100">₹{parseFloat(submittedApp.loan_amount).toLocaleString('en-IN')}</span>
+                  <span className="text-slate-500 dark:text-dark-400">Loan Amount</span>
+                  <span className="font-semibold text-slate-800 dark:text-dark-100">₹{parseFloat(submittedApp.loan_amount).toLocaleString('en-IN')}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-500 dark:text-dark-400 font-medium">Language Preferred</span>
-                  <span className="font-extrabold text-slate-800 dark:text-dark-100">{submittedApp.preferred_language}</span>
+                  <span className="text-slate-500 dark:text-dark-400">Language Preferred</span>
+                  <span className="font-semibold text-slate-800 dark:text-dark-100">{submittedApp.preferred_language}</span>
                 </div>
               </div>
 
               {/* Reference ID Block */}
-              <div className="space-y-2.5 mb-10">
-                <span className="block text-xs font-bold text-slate-400 dark:text-dark-500 uppercase tracking-widest">
+              <div className="space-y-2 mb-10">
+                <span className="block text-xs font-semibold text-slate-400 dark:text-dark-500 uppercase tracking-widest">
                   Application Reference ID
                 </span>
-                <div className="flex items-center justify-between gap-3 p-3.5 bg-slate-100 dark:bg-dark-950 rounded-2xl border border-slate-200/60 dark:border-white/[0.06] shadow-sm">
+                <div className="flex items-center justify-between gap-3 p-3.5 bg-slate-100 dark:bg-dark-950 rounded-xl border border-slate-200 dark:border-dark-800">
                   <code className="text-xs font-mono font-bold select-all break-all text-slate-800 dark:text-brand-300">
                     {submittedApp.id}
                   </code>
                   <button
                     onClick={copyToClipboard}
-                    className="p-2 rounded-xl bg-white dark:bg-white/5 border border-slate-200/50 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 text-slate-500 dark:text-dark-300 transition-all duration-300 shadow-sm"
+                    className="p-2 rounded-lg bg-white dark:bg-dark-900 border border-slate-200/50 dark:border-dark-850 hover:bg-slate-50 dark:hover:bg-dark-800 text-slate-500 dark:text-dark-400 transition-colors shadow-sm"
                     title="Copy Application ID"
                   >
                     {isCopied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
@@ -407,15 +409,15 @@ export default function ApplyLoan() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <button
                   onClick={() => setSubmittedApp(null)}
-                  className="flex-1 px-5 py-3.5 rounded-2xl border border-slate-200 dark:border-white/10 hover:bg-slate-100/60 dark:hover:bg-white/[0.04] text-sm font-bold transition-all duration-300 text-slate-600 dark:text-dark-300"
+                  className="flex-1 px-5 py-3 rounded-xl border border-slate-200 dark:border-dark-800 hover:bg-slate-100/60 dark:hover:bg-dark-800/40 text-sm font-semibold transition-colors text-slate-600 dark:text-dark-300"
                 >
                   Apply for New Loan
                 </button>
                 <button
                   onClick={() => navigate('/')}
-                  className="flex-1 px-5 py-3.5 rounded-2xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-bold text-sm shadow-premium flex items-center justify-center gap-2 transition-all duration-300 hover:shadow-premium-hover hover:-translate-y-0.5"
+                  className="flex-1 px-5 py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-sm shadow-premium flex items-center justify-center gap-2 transition-colors"
                 >
-                  <ArrowLeft className="w-4 h-4" />
+                  <ArrowLeft className="w-4.5 h-4.5" />
                   Back to Dashboard
                 </button>
               </div>
