@@ -25,6 +25,12 @@ const LANG_COLORS = {
   English: { bg: 'bg-emerald-500/10', text: 'text-emerald-500 dark:text-emerald-400', border: 'border-emerald-500/20' },
 };
 
+const STATUS_COLORS = {
+  approved: { bg: 'bg-emerald-500/10 dark:bg-emerald-500/15', text: 'text-emerald-600 dark:text-emerald-400', border: 'border-emerald-500/30' },
+  rejected: { bg: 'bg-rose-500/10 dark:bg-rose-500/15',    text: 'text-rose-600 dark:text-rose-400',       border: 'border-rose-500/30' },
+  pending:  { bg: 'bg-amber-500/10 dark:bg-amber-500/15',   text: 'text-amber-600 dark:text-amber-400',     border: 'border-amber-500/30' },
+};
+
 /* ─── Animated number ───────────────────── */
 function AnimatedCounter({ value, prefix = '', suffix = '' }) {
   const spring = useSpring(0, { bounce: 0, duration: 1400 });
@@ -137,6 +143,7 @@ export default function Dashboard() {
   }));
 
   const langColor = (l) => LANG_COLORS[l] || LANG_COLORS.English;
+  const statusColor = (s) => STATUS_COLORS[s] || STATUS_COLORS.pending;
 
   return (
     <div className="space-y-7 pb-12">
@@ -253,7 +260,8 @@ export default function Dashboard() {
 
         {/* Area chart */}
         <motion.div variants={rise}
-          className="lg:col-span-2 glass-panel rounded-2xl p-5 border border-white/40 dark:border-white/[0.05] h-[300px] flex flex-col">
+          whileHover={{ y: -4, transition: { duration: 0.3 } }}
+          className="lg:col-span-2 glass-panel rounded-2xl p-5 border border-white/40 dark:border-white/[0.05] h-[300px] flex flex-col group hover:shadow-[0_24px_50px_-12px_rgba(232,24,74,0.15)] dark:hover:shadow-[0_24px_50px_-12px_rgba(232,24,74,0.3)] hover:border-brand-500/30 dark:hover:border-brand-500/40 transition-all duration-300">
           <div className="flex items-center justify-between mb-4 shrink-0">
             <div>
               <h3 className="font-display font-bold text-slate-800 dark:text-dark-100 flex items-center gap-2 text-sm">
@@ -293,7 +301,8 @@ export default function Dashboard() {
 
         {/* Pie chart */}
         <motion.div variants={rise}
-          className="glass-panel rounded-2xl p-5 border border-white/40 dark:border-white/[0.05] h-[300px] flex flex-col">
+          whileHover={{ y: -4, transition: { duration: 0.3 } }}
+          className="glass-panel rounded-2xl p-5 border border-white/40 dark:border-white/[0.05] h-[300px] flex flex-col group hover:shadow-[0_24px_50px_-12px_rgba(99,102,241,0.15)] dark:hover:shadow-[0_24px_50px_-12px_rgba(99,102,241,0.3)] hover:border-indigo-500/30 dark:hover:border-indigo-500/40 transition-all duration-300">
           <div className="shrink-0 mb-3">
             <h3 className="font-display font-bold text-slate-800 dark:text-dark-100 flex items-center gap-2 text-sm">
               <Languages size={15} className="text-brand-500" /> Language Split
@@ -346,7 +355,7 @@ export default function Dashboard() {
 
         {/* Toolbar */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-3
-          p-3 glass-panel rounded-2xl border border-white/40 dark:border-white/[0.05]">
+          p-3 glass-panel rounded-2xl border border-white/40 dark:border-white/[0.05] hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_20px_40px_-12px_rgba(255,255,255,0.05)] transition-all duration-300">
 
           <div className="relative flex-1 max-w-xs">
             <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-dark-500 pointer-events-none" />
@@ -378,7 +387,7 @@ export default function Dashboard() {
         </div>
 
         {/* Table */}
-        <div className="glass-panel rounded-2xl border border-white/40 dark:border-white/[0.05] overflow-hidden shadow-glass">
+        <div className="glass-panel rounded-2xl border border-white/40 dark:border-white/[0.05] overflow-hidden shadow-glass hover:shadow-[0_24px_60px_-12px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_24px_60px_-12px_rgba(255,255,255,0.05)] transition-all duration-300">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-slate-100/60 dark:divide-dark-800/40 text-sm">
               <thead className="bg-slate-50/70 dark:bg-dark-900/60 backdrop-blur-sm">
@@ -460,7 +469,7 @@ export default function Dashboard() {
 
                           {/* Status */}
                           <td className="px-5 py-4 whitespace-nowrap">
-                            <span className={`badge-${app.status}`}>
+                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border ${statusColor(app.status).bg} ${statusColor(app.status).text} ${statusColor(app.status).border}`}>
                               {app.status === 'approved' && <CheckCircle2 size={11} />}
                               {app.status === 'rejected' && <XCircle size={11} />}
                               {app.status === 'pending'  && <Clock size={11} className="animate-pulse-glow" />}
@@ -567,7 +576,12 @@ export default function Dashboard() {
                     </div>
                     <div>
                       <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-dark-600 mb-1">Current Status</p>
-                      <span className={`badge-${modalApp.status} capitalize`}>{modalApp.status}</span>
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border ${statusColor(modalApp.status).bg} ${statusColor(modalApp.status).text} ${statusColor(modalApp.status).border} capitalize`}>
+                        {modalApp.status === 'approved' && <CheckCircle2 size={11} />}
+                        {modalApp.status === 'rejected' && <XCircle size={11} />}
+                        {modalApp.status === 'pending'  && <Clock size={11} />}
+                        {modalApp.status}
+                      </span>
                     </div>
                   </div>
                 </div>
