@@ -1,232 +1,243 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useStore } from '../store/useStore';
-import { 
-  LayoutDashboard, 
-  FilePlus, 
-  Sun, 
-  Moon, 
-  Menu, 
-  X, 
-  Building2, 
+import {
+  LayoutDashboard, FilePlus, Sun, Moon, Menu, X, Zap, ChevronRight,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+const NAV = [
+  { name: 'Dashboard',        path: '/',      icon: LayoutDashboard, sub: 'Analytics & overview'  },
+  { name: 'Apply for Loan',   path: '/apply', icon: FilePlus,        sub: 'Submit application'    },
+];
+
 export default function Layout({ children }) {
   const { theme, toggleTheme } = useStore();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
 
-  // Load theme classes on mount
   useEffect(() => {
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+    document.body.classList.toggle('dark', theme === 'dark');
   }, [theme]);
 
-  const navItems = [
-    { name: 'Dashboard', path: '/', icon: LayoutDashboard },
-    { name: 'Apply for Loan', path: '/apply', icon: FilePlus },
-  ];
-
-  const sidebarVariants = {
-    open: { x: 0, opacity: 1, transition: { type: 'spring', stiffness: 300, damping: 30 } },
-    closed: { x: '-100%', opacity: 0, transition: { type: 'spring', stiffness: 300, damping: 30 } },
-  };
-
-  const pageVariants = {
-    initial: { opacity: 0, y: 15, scale: 0.99 },
-    animate: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } },
-    exit: { opacity: 0, y: -10, transition: { duration: 0.2 } },
-  };
+  useEffect(() => { setMobileOpen(false); }, [location.pathname]);
 
   return (
-    <div className="min-h-screen flex text-slate-900 dark:text-dark-100 font-sans relative overflow-hidden bg-slate-50 dark:bg-dark-950 transition-colors duration-500">
-      
-      {/* Immersive Animated Background System */}
+    <div className="min-h-screen flex text-slate-900 dark:text-slate-200 font-sans relative overflow-hidden bg-slate-50 dark:bg-dark-950 transition-colors duration-500">
+
+      {/* ── Background system ─────────────────────────────────── */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        <div className="absolute inset-0 bg-grid-pattern opacity-[0.03] dark:opacity-[0.05]" />
-        
-        {/* Subtle radial glows / Aurora effects */}
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-brand-500/10 dark:bg-brand-500/20 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-pulse-glow" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-500/10 dark:bg-indigo-500/15 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-pulse-glow" style={{ animationDelay: '1.5s' }} />
+        <div className="absolute inset-0 bg-grid-pattern opacity-100" />
+
+        {/* Cinematic aurora blobs */}
+        <div className="absolute -top-[20%] -left-[10%] w-[55%] h-[55%] rounded-full
+          bg-gradient-radial from-brand-500/12 via-brand-600/6 to-transparent
+          blur-[120px] animate-pulse-glow dark:from-brand-500/18" />
+        <div className="absolute -bottom-[15%] -right-[10%] w-[50%] h-[50%] rounded-full
+          bg-gradient-radial from-indigo-500/10 via-purple-600/5 to-transparent
+          blur-[100px] animate-pulse-glow dark:from-indigo-500/14"
+          style={{ animationDelay: '2s' }} />
+        <div className="absolute top-[40%] left-[50%] w-[30%] h-[30%] rounded-full
+          bg-gradient-radial from-brand-400/6 to-transparent
+          blur-[80px] animate-float dark:from-brand-400/10"
+          style={{ animationDelay: '1s' }} />
+
+        {/* Subtle noise overlay */}
+        <div className="absolute inset-0 opacity-[0.015] dark:opacity-[0.04]"
+          style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")" }} />
       </div>
 
-      {/* Desktop Sidebar */}
-      <aside className="hidden md:flex flex-col w-64 fixed inset-y-0 left-0 glass-panel border-r border-white/50 dark:border-dark-800/50 z-30">
-        {/* Logo Section */}
-        <div className="flex items-center gap-3 px-6 h-20 border-b border-slate-200/50 dark:border-dark-800/50">
-          <motion.div 
-            whileHover={{ scale: 1.05, rotate: 5 }}
-            whileTap={{ scale: 0.95 }}
-            className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 shadow-glow-brand text-white"
+      {/* ── Desktop Sidebar ───────────────────────────────────── */}
+      <aside className="hidden md:flex flex-col w-64 fixed inset-y-0 left-0 z-30
+        bg-white/60 dark:bg-dark-900/70 backdrop-blur-2xl
+        border-r border-slate-200/60 dark:border-white/[0.05]
+        shadow-[1px_0_0_0_rgba(0,0,0,0.04)] dark:shadow-[1px_0_0_0_rgba(255,255,255,0.03)]">
+
+        {/* Logo */}
+        <div className="flex items-center gap-3 px-5 h-[68px] border-b border-slate-200/60 dark:border-white/[0.05] shrink-0">
+          <motion.div
+            whileHover={{ scale: 1.08, rotate: 5 }}
+            whileTap={{ scale: 0.94 }}
+            className="relative w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+            style={{ background: 'linear-gradient(135deg,#e8184a 0%,#a80933 100%)', boxShadow: '0 4px 16px rgba(232,24,74,0.4)' }}
           >
-            <Building2 className="w-5 h-5" />
+            <Zap size={18} className="text-white fill-white" />
+            <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-white/20 to-transparent pointer-events-none" />
           </motion.div>
           <div>
-            <h1 className="text-xl font-bold font-sans tracking-tight bg-gradient-to-r from-slate-900 via-indigo-950 to-brand-600 dark:from-white dark:via-dark-100 dark:to-brand-400 bg-clip-text text-transparent">
-              Vitto
-            </h1>
-            <span className="text-[10px] font-semibold tracking-wider text-indigo-500 uppercase">Fintech</span>
+            <h1 className="font-display font-bold text-lg text-slate-900 dark:text-white leading-none tracking-tight">Vitto</h1>
+            <span className="text-[10px] font-semibold tracking-[0.12em] text-brand-500 uppercase block mt-0.5">Loan Portal</span>
           </div>
         </div>
 
-        {/* Navigation Links */}
-        <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto relative z-10">
-          {navItems.map((item) => {
-            const isActive = location.pathname === item.path;
-            const Icon = item.icon;
+        {/* Nav label */}
+        <div className="px-5 pt-6 pb-2">
+          <span className="text-[10px] font-semibold tracking-[0.15em] text-slate-400/70 dark:text-dark-600 uppercase">Menu</span>
+        </div>
 
+        {/* Nav links */}
+        <nav className="flex-1 px-3 pb-4 space-y-1 overflow-y-auto">
+          {NAV.map(({ name, path, icon: Icon, sub }) => {
+            const active = location.pathname === path;
             return (
               <Link
-                key={item.path}
-                to={item.path}
-                className={`flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-300 relative group z-10 ${
-                  isActive ? 'text-brand-600 dark:text-white' : 'text-slate-500 hover:text-slate-900 dark:text-dark-400 dark:hover:text-dark-100'
+                key={path}
+                to={path}
+                className={`flex items-center gap-3 px-3.5 py-3 rounded-xl transition-all duration-200 relative group ${
+                  active
+                    ? 'text-brand-600 dark:text-white'
+                    : 'text-slate-500 dark:text-dark-400 hover:text-slate-800 dark:hover:text-dark-100'
                 }`}
               >
-                {/* Active Pill Background Indicator (Vercel Style) */}
-                {isActive && (
+                {active && (
                   <motion.div
-                    layoutId="desktop-active-pill"
-                    className="absolute inset-0 bg-white dark:bg-dark-800/80 rounded-xl shadow-sm border border-slate-200/50 dark:border-dark-700/50 z-[-1]"
-                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                    layoutId="sidebar-pill"
+                    className="absolute inset-0 rounded-xl nav-active-glow"
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(232,24,74,0.08) 0%, rgba(232,24,74,0.04) 100%)',
+                      border: '1px solid rgba(232,24,74,0.15)',
+                    }}
+                    transition={{ type: 'spring', stiffness: 380, damping: 32 }}
                   />
                 )}
-                
-                {/* Hover Background */}
-                {!isActive && (
-                  <div className="absolute inset-0 bg-slate-100/0 dark:bg-dark-800/0 group-hover:bg-slate-100/50 dark:group-hover:bg-dark-800/40 rounded-xl transition-colors duration-300 z-[-1]" />
+                {!active && (
+                  <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200
+                    bg-slate-100/60 dark:bg-dark-800/40" />
                 )}
 
-                <Icon className={`w-5 h-5 transition-transform duration-300 group-hover:scale-110 ${
-                  isActive ? 'text-brand-500 dark:text-brand-400' : 'text-slate-400 dark:text-dark-500 group-hover:text-brand-400 dark:group-hover:text-brand-400'
-                }`} />
-                <span className="relative z-10">{item.name}</span>
+                <div className={`relative z-10 w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-all duration-200 ${
+                  active
+                    ? 'bg-brand-500/15 dark:bg-brand-500/20 text-brand-500'
+                    : 'bg-slate-100/80 dark:bg-dark-800/60 text-slate-400 dark:text-dark-500 group-hover:bg-slate-200/60 dark:group-hover:bg-dark-700/60 group-hover:text-brand-500'
+                }`}>
+                  <Icon size={15} />
+                </div>
+
+                <div className="relative z-10 flex-1 min-w-0">
+                  <p className={`text-sm font-semibold leading-none ${active ? 'text-slate-900 dark:text-white' : ''}`}>{name}</p>
+                  <p className="text-[11px] text-slate-400 dark:text-dark-600 mt-0.5 truncate">{sub}</p>
+                </div>
+
+                {active && <ChevronRight size={13} className="relative z-10 text-brand-500 shrink-0" />}
               </Link>
             );
           })}
         </nav>
 
-        {/* Bottom Panel with Theme Toggle */}
-        <div className="p-4 border-t border-slate-200/50 dark:border-dark-800/50 glass-panel">
-          <div className="flex items-center justify-between p-2 rounded-xl bg-white/50 dark:bg-dark-900/50 border border-slate-200/50 dark:border-dark-800/50">
-            <span className="text-xs font-semibold text-slate-500 dark:text-dark-400 pl-2">Appearance</span>
+        {/* Status + theme */}
+        <div className="p-3 border-t border-slate-200/60 dark:border-white/[0.05] space-y-2 shrink-0">
+          {/* System status */}
+          <div className="px-3.5 py-3 rounded-xl bg-emerald-500/5 dark:bg-emerald-500/8 border border-emerald-500/15">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse-glow block" />
+              <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Live</span>
+            </div>
+            <p className="text-xs font-medium text-slate-600 dark:text-dark-300">All systems operational</p>
+          </div>
+
+          {/* Theme toggle */}
+          <div className="flex items-center justify-between px-3.5 py-2.5 rounded-xl
+            bg-slate-100/60 dark:bg-dark-800/50 border border-slate-200/50 dark:border-dark-700/40">
+            <span className="text-xs font-semibold text-slate-500 dark:text-dark-400">Appearance</span>
             <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.92 }}
               onClick={toggleTheme}
-              className="p-1.5 rounded-lg bg-white dark:bg-dark-800 shadow-sm border border-slate-200/50 dark:border-dark-700/50 hover:bg-slate-50 dark:hover:bg-dark-750 transition-colors text-brand-500 dark:text-brand-400"
-              aria-label="Toggle Theme"
+              className="p-1.5 rounded-lg bg-white dark:bg-dark-700 border border-slate-200/70 dark:border-dark-600/60
+                text-brand-500 shadow-sm hover:shadow-glow-sm transition-all"
             >
               <AnimatePresence mode="wait" initial={false}>
-                <motion.div
-                  key={theme}
-                  initial={{ opacity: 0, rotate: -90 }}
-                  animate={{ opacity: 1, rotate: 0 }}
-                  exit={{ opacity: 0, rotate: 90 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                <motion.div key={theme}
+                  initial={{ opacity: 0, rotate: -90, scale: 0.7 }}
+                  animate={{ opacity: 1, rotate: 0, scale: 1 }}
+                  exit={{ opacity: 0, rotate: 90, scale: 0.7 }}
+                  transition={{ duration: 0.18 }}>
+                  {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
                 </motion.div>
               </AnimatePresence>
             </motion.button>
           </div>
         </div>
+
+        {/* Version */}
+        <div className="px-5 pb-4 pt-1">
+          <p className="text-[10px] font-mono text-slate-300/50 dark:text-dark-700">v1.0.0 · Vitto Portal</p>
+        </div>
       </aside>
 
-      {/* Mobile Header */}
-      <div className="md:hidden fixed top-0 inset-x-0 h-16 flex items-center justify-between px-6 glass-panel z-40">
-        <div className="flex items-center gap-2">
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-600 to-indigo-500 text-white shadow-glow-brand">
-            <Building2 className="w-4 h-4" />
+      {/* ── Mobile header ──────────────────────────────────────── */}
+      <div className="md:hidden fixed top-0 inset-x-0 h-14 flex items-center justify-between px-4 z-40
+        bg-white/80 dark:bg-dark-900/80 backdrop-blur-xl
+        border-b border-slate-200/60 dark:border-white/[0.05]">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center"
+            style={{ background: 'linear-gradient(135deg,#e8184a,#a80933)', boxShadow: '0 3px 12px rgba(232,24,74,0.4)' }}>
+            <Zap size={14} className="text-white fill-white" />
           </div>
-          <span className="font-bold text-lg tracking-tight bg-gradient-to-r from-slate-900 to-indigo-950 dark:from-white dark:to-dark-100 bg-clip-text text-transparent">
-            Vitto
-          </span>
+          <span className="font-display font-bold text-base text-slate-900 dark:text-white">Vitto</span>
         </div>
-
-        <div className="flex items-center gap-3">
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={toggleTheme}
-            className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-dark-850 text-slate-500 dark:text-dark-400"
-          >
-            {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-          </motion.button>
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-dark-850 text-slate-600 dark:text-dark-300"
-          >
-            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </motion.button>
+        <div className="flex items-center gap-2">
+          <button onClick={toggleTheme}
+            className="p-2 rounded-lg text-slate-500 dark:text-dark-400 hover:bg-slate-100 dark:hover:bg-dark-800 transition-colors">
+            {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
+          </button>
+          <button onClick={() => setMobileOpen(v => !v)}
+            className="p-2 rounded-lg text-slate-600 dark:text-dark-300 hover:bg-slate-100 dark:hover:bg-dark-800 transition-colors">
+            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
         </div>
       </div>
 
-      {/* Mobile Drawer (Mobile Navigation) */}
+      {/* ── Mobile drawer ──────────────────────────────────────── */}
       <AnimatePresence>
-        {isMobileMenuOpen && (
+        {mobileOpen && (
           <>
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="fixed inset-0 bg-slate-900/40 dark:bg-black/60 backdrop-blur-sm z-40 md:hidden"
-            />
-            {/* Drawer */}
-            <motion.nav
-              variants={sidebarVariants}
-              initial="closed"
-              animate="open"
-              exit="closed"
-              className="fixed top-0 bottom-0 left-0 w-72 glass-panel p-6 shadow-2xl border-r border-slate-200 dark:border-dark-800 flex flex-col z-50 md:hidden"
-            >
-              <div className="flex items-center justify-between pb-6 border-b border-slate-200/50 dark:border-dark-800/50">
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-gradient-to-tr from-brand-600 to-indigo-500 text-white shadow-glow-brand">
-                    <Building2 className="w-4.5 h-4.5" />
+            <motion.div key="backdrop"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setMobileOpen(false)}
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden" />
+            <motion.nav key="drawer"
+              initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              className="fixed top-0 bottom-0 left-0 w-72 z-50 md:hidden flex flex-col
+                bg-white/95 dark:bg-dark-900/95 backdrop-blur-2xl
+                border-r border-slate-200/60 dark:border-white/[0.05] shadow-2xl">
+
+              <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200/60 dark:border-white/[0.05]">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center"
+                    style={{ background: 'linear-gradient(135deg,#e8184a,#a80933)', boxShadow: '0 4px 14px rgba(232,24,74,0.4)' }}>
+                    <Zap size={16} className="text-white fill-white" />
                   </div>
-                  <span className="font-bold text-lg tracking-tight bg-gradient-to-r from-slate-900 to-indigo-950 dark:from-white dark:to-dark-100 bg-clip-text text-transparent">
-                    Vitto
-                  </span>
+                  <div>
+                    <p className="font-display font-bold text-slate-900 dark:text-white text-base leading-none">Vitto</p>
+                    <p className="text-[10px] text-brand-500 font-semibold tracking-wider uppercase mt-0.5">Loan Portal</p>
+                  </div>
                 </div>
-                <motion.button
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-1.5 rounded-lg bg-slate-100 dark:bg-dark-800 text-slate-500 dark:text-dark-400"
-                >
-                  <X className="w-5 h-5" />
-                </motion.button>
+                <button onClick={() => setMobileOpen(false)}
+                  className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-dark-800 transition-colors">
+                  <X size={17} />
+                </button>
               </div>
 
-              <div className="flex-1 py-8 space-y-1 relative">
-                {navItems.map((item) => {
-                  const isActive = location.pathname === item.path;
-                  const Icon = item.icon;
-
+              <div className="flex-1 p-4 space-y-1">
+                {NAV.map(({ name, path, icon: Icon }) => {
+                  const active = location.pathname === path;
                   return (
-                    <Link
-                      key={item.path}
-                      to={item.path}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className={`flex items-center gap-4 px-4 py-3.5 rounded-xl font-semibold text-sm transition-all duration-300 relative z-10 ${
-                        isActive ? 'text-brand-600 dark:text-white' : 'text-slate-500 hover:text-slate-900 dark:text-dark-400 dark:hover:text-dark-100'
-                      }`}
-                    >
-                      {isActive && (
-                        <motion.div
-                          layoutId="mobile-active-pill"
-                          className="absolute inset-0 bg-white dark:bg-dark-800/80 rounded-xl shadow-sm border border-slate-200/50 dark:border-dark-700/50 z-[-1]"
-                          transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                        />
+                    <Link key={path} to={path}
+                      className={`flex items-center gap-3.5 px-4 py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 relative ${
+                        active
+                          ? 'text-slate-900 dark:text-white'
+                          : 'text-slate-500 dark:text-dark-400 hover:text-slate-800 dark:hover:text-dark-100 hover:bg-slate-100/50 dark:hover:bg-dark-800/50'
+                      }`}>
+                      {active && (
+                        <motion.div layoutId="mobile-pill"
+                          className="absolute inset-0 rounded-xl"
+                          style={{ background:'rgba(232,24,74,0.08)', border:'1px solid rgba(232,24,74,0.15)' }}
+                          transition={{ type:'spring', stiffness:380, damping:32 }} />
                       )}
-                      <Icon className={`w-5 h-5 transition-transform duration-300 ${isActive ? 'text-brand-500' : 'text-slate-400 dark:text-dark-500'}`} />
-                      {item.name}
+                      <Icon size={18} className={`relative z-10 ${active ? 'text-brand-500' : ''}`} />
+                      <span className="relative z-10">{name}</span>
                     </Link>
                   );
                 })}
@@ -236,16 +247,16 @@ export default function Layout({ children }) {
         )}
       </AnimatePresence>
 
-      {/* Main Content Area */}
-      <main className="flex-1 md:pl-64 pt-16 md:pt-0 min-h-screen flex flex-col z-10 relative">
-        <div className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-8 md:py-10">
+      {/* ── Main content ───────────────────────────────────────── */}
+      <main className="flex-1 md:pl-64 pt-14 md:pt-0 min-h-screen flex flex-col z-10 relative">
+        <div className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-7 md:py-9">
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
+              initial={{ opacity: 0, y: 14, scale: 0.995 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
               className="w-full"
             >
               {children}
@@ -253,7 +264,6 @@ export default function Layout({ children }) {
           </AnimatePresence>
         </div>
       </main>
-      
     </div>
   );
 }

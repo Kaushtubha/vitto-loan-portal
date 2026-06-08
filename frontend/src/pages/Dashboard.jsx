@@ -1,141 +1,105 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useStore } from '../store/useStore';
-import { 
-  Search, 
-  Filter, 
-  Download, 
-  Clock, 
-  CheckCircle2, 
-  XCircle, 
-  Copy, 
-  Check, 
-  Plus, 
-  ChevronLeft, 
-  ChevronRight, 
-  TrendingUp, 
-  UserCheck, 
-  RefreshCw, 
-  Sparkles,
-  Calendar,
-  Layers,
-  Activity,
-  ArrowRightLeft,
-  Languages
+import {
+  Search, Filter, Download, Clock, CheckCircle2, XCircle, Copy, Check,
+  Plus, ChevronLeft, ChevronRight, TrendingUp, UserCheck, RefreshCw,
+  Sparkles, Calendar, Layers, Activity, ArrowRightLeft, Languages,
+  BarChart3, Wallet, AlertCircle, ArrowUpRight,
 } from 'lucide-react';
-import { 
-  ResponsiveContainer, 
-  AreaChart, 
-  Area, 
-  XAxis, 
-  YAxis, 
-  Tooltip, 
-  PieChart, 
-  Pie, 
-  Cell 
+import {
+  ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip,
+  PieChart, Pie, Cell, CartesianGrid,
 } from 'recharts';
 import { motion, AnimatePresence, useSpring, useTransform } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 
-// Colors for the Pie Chart
-const COLORS = ['#6366f1', '#f59e0b', '#10b981', '#3b82f6', '#ec4899'];
+/* ─── constants ─────────────────────────── */
+const PIE_COLORS = ['#e8184a', '#f59e0b', '#10b981', '#6366f1', '#ec4899'];
 
-// Animated Counter Component
-const AnimatedCounter = ({ value, prefix = "", suffix = "" }) => {
-  const springValue = useSpring(0, { bounce: 0, duration: 1500 });
-  const [displayValue, setDisplayValue] = useState(0);
+const LANG_COLORS = {
+  Hindi:   { bg: 'bg-orange-500/10',  text: 'text-orange-500 dark:text-orange-400',  border: 'border-orange-500/20' },
+  Tamil:   { bg: 'bg-indigo-500/10',  text: 'text-indigo-500 dark:text-indigo-400',  border: 'border-indigo-500/20' },
+  Telugu:  { bg: 'bg-pink-500/10',    text: 'text-pink-500 dark:text-pink-400',       border: 'border-pink-500/20' },
+  Marathi: { bg: 'bg-blue-500/10',    text: 'text-blue-500 dark:text-blue-400',       border: 'border-blue-500/20' },
+  English: { bg: 'bg-emerald-500/10', text: 'text-emerald-500 dark:text-emerald-400', border: 'border-emerald-500/20' },
+};
 
-  useEffect(() => {
-    springValue.set(value);
-  }, [value, springValue]);
+/* ─── Animated number ───────────────────── */
+function AnimatedCounter({ value, prefix = '', suffix = '' }) {
+  const spring = useSpring(0, { bounce: 0, duration: 1400 });
+  const [display, setDisplay] = useState(0);
+  useEffect(() => { spring.set(value); }, [value, spring]);
+  useEffect(() => spring.onChange(v => setDisplay(Math.floor(v))), [spring]);
+  return <span>{prefix}{display.toLocaleString('en-IN')}{suffix}</span>;
+}
 
-  useEffect(() => {
-    return springValue.onChange((latest) => {
-      setDisplayValue(Math.floor(latest));
-    });
-  }, [springValue]);
-
+/* ─── Skeleton row ──────────────────────── */
+function SkeletonRow() {
   return (
-    <span>
-      {prefix}
-      {displayValue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
-      {suffix}
-    </span>
+    <tr>
+      <td colSpan={7} className="p-0">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="flex items-center gap-4 px-6 py-4 border-b border-slate-100/50 dark:border-dark-800/40 last:border-0">
+            <div className="skeleton h-3 w-20" />
+            <div className="skeleton h-3 w-32 ml-6" />
+            <div className="skeleton h-3 w-24 ml-6" />
+            <div className="skeleton h-3 w-16 ml-6" />
+            <div className="skeleton h-5 w-16 rounded-full ml-6" />
+            <div className="skeleton h-5 w-20 rounded-full ml-auto" />
+          </div>
+        ))}
+      </td>
+    </tr>
   );
-};
+}
 
-// Framer Motion Variants
-const containerVariants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.1
-    }
-  }
-};
+/* ─── Custom Tooltip ────────────────────── */
+function ChartTooltip({ active, payload, label }) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="glass-card px-4 py-3 rounded-xl text-xs shadow-glass-dark border border-white/10">
+      <p className="text-slate-400 dark:text-dark-400 mb-1 font-medium">{label}</p>
+      <p className="font-bold text-slate-900 dark:text-white text-sm">
+        ₹{payload[0].value?.toLocaleString('en-IN')}
+      </p>
+    </div>
+  );
+}
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
-};
+/* ─── Motion variants ───────────────────── */
+const stagger = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.08 } } };
+const rise    = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 280, damping: 22 } } };
 
+/* ─────────────────────────────────────────── */
 export default function Dashboard() {
-  const { 
-    applications, 
-    summary, 
-    pagination, 
-    loading, 
-    fetchApplications, 
-    fetchSummary, 
-    updateStatus 
-  } = useStore();
-
+  const { applications, summary, pagination, loading, fetchApplications, fetchSummary, updateStatus } = useStore();
   const navigate = useNavigate();
 
-  // Search & Filter state
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [debouncedSearch, setDebouncedSearch] = useState('');
-  
-  // UI Helpers
-  const [copiedId, setCopiedId] = useState(null);
-  const [selectedAppForStatus, setSelectedAppForStatus] = useState(null);
+  const [search,    setSearch]    = useState('');
+  const [debSearch, setDebSearch] = useState('');
+  const [filter,    setFilter]    = useState('all');
+  const [page,      setPage]      = useState(1);
+  const [copiedId,  setCopiedId]  = useState(null);
+  const [modalApp,  setModalApp]  = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
 
-  // Sync debounced search
+  /* debounce search */
   useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedSearch(searchTerm);
-      setCurrentPage(1); // reset to page 1 on new search
-    }, 450);
-    return () => clearTimeout(handler);
-  }, [searchTerm]);
+    const t = setTimeout(() => { setDebSearch(search); setPage(1); }, 420);
+    return () => clearTimeout(t);
+  }, [search]);
 
-  // Load applications and summary statistics on mount and when filters/page changes
-  useEffect(() => {
-    fetchApplications({
-      status: statusFilter,
-      search: debouncedSearch,
-      page: currentPage,
-      limit: 7,
-    });
-  }, [statusFilter, debouncedSearch, currentPage]);
+  useEffect(() => { fetchApplications({ status: filter, search: debSearch, page, limit: 8 }); },
+    [filter, debSearch, page]);
 
-  useEffect(() => {
-    fetchSummary();
-  }, []);
+  useEffect(() => { fetchSummary(); }, []);
 
-  const handleRefresh = () => {
-    fetchSummary();
-    fetchApplications({
-      status: statusFilter,
-      search: debouncedSearch,
-      page: currentPage,
-      limit: 7,
-    });
-    toast.success('Dashboard metrics updated');
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await Promise.all([fetchSummary(), fetchApplications({ status: filter, search: debSearch, page, limit: 8 })]);
+    setRefreshing(false);
+    toast.success('Dashboard refreshed');
   };
 
   const copyId = (id) => {
@@ -145,556 +109,403 @@ export default function Dashboard() {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  // Status badge style helper
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case 'approved':
-        return 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20';
-      case 'rejected':
-        return 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20';
-      default:
-        return 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20';
-    }
-  };
-
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case 'approved':
-        return <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" />;
-      case 'rejected':
-        return <XCircle className="w-3.5 h-3.5 mr-1.5" />;
-      default:
-        return <Clock className="w-3.5 h-3.5 mr-1.5 animate-pulse" />;
-    }
-  };
-
-  // Language badge color mapping
-  const getLanguageBadgeColor = (lang) => {
-    switch (lang) {
-      case 'Hindi': return 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20';
-      case 'Tamil': return 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20';
-      case 'Telugu': return 'bg-pink-500/10 text-pink-600 dark:text-pink-400 border border-pink-500/20';
-      case 'Marathi': return 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20';
-      default: return 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20';
-    }
-  };
-
   const handleStatusUpdate = async (id, status) => {
     await updateStatus(id, status);
-    setSelectedAppForStatus(null);
+    setModalApp(prev => prev ? { ...prev, status } : null);
   };
 
-  const exportToCSV = () => {
-    if (applications.length === 0) {
-      toast.error('No applications available to export.');
-      return;
-    }
-    const headers = ['Application ID', 'Applicant Name', 'Mobile Number', 'Loan Amount (INR)', 'Loan Purpose', 'Language', 'Status', 'Applied At'];
-    const rows = applications.map(app => [
-      app.id, app.applicant_name, app.mobile_number, app.loan_amount,
-      `"${app.loan_purpose.replace(/"/g, '""')}"`, app.preferred_language, app.status,
-      new Date(app.created_at).toLocaleString('en-IN')
+  const exportCSV = () => {
+    if (!applications.length) { toast.error('No data to export.'); return; }
+    const h = ['ID','Name','Mobile','Amount','Purpose','Language','Status','Date'];
+    const rows = applications.map(a => [
+      a.id, a.applicant_name, a.mobile_number, a.loan_amount,
+      `"${a.loan_purpose?.replace(/"/g,'""')}"`,
+      a.preferred_language, a.status,
+      new Date(a.created_at).toLocaleString('en-IN'),
     ]);
-    const csvContent = [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `vitto_applications_export_${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    toast.success('CSV Export downloaded successfully');
+    const blob = new Blob([[h, ...rows].map(r => r.join(',')).join('\n')], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `vitto_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    toast.success('CSV exported!');
   };
 
-  const chartData = summary.recentApplications?.slice().reverse().map(app => ({
-    date: new Date(app.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    amount: parseFloat(app.loan_amount)
-  })) || [];
+  const chartData = (summary.recentApplications || []).slice().reverse().map(a => ({
+    date: new Date(a.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    amount: parseFloat(a.loan_amount),
+  }));
+
+  const langColor = (l) => LANG_COLORS[l] || LANG_COLORS.English;
 
   return (
-    <div className="space-y-8 pb-10">
-      
-      {/* Header and Welcome */}
-      <motion.div 
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-      >
+    <div className="space-y-7 pb-12">
+
+      {/* ── Header ────────────────────────────────────── */}
+      <motion.div initial={{ opacity:0, y:-12 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.4 }}
+        className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-brand-500 dark:text-brand-400 font-semibold text-xs uppercase tracking-wider mb-1">
-            <Sparkles className="w-4.5 h-4.5 animate-pulse" />
-            <span className="text-glow">Operational Center</span>
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-brand-500 dark:text-brand-400">
+              <Sparkles size={13} className="animate-pulse-glow" />
+            </span>
+            <span className="text-[11px] font-display font-bold tracking-[0.15em] text-brand-500 dark:text-brand-400 uppercase text-glow">
+              Operations Center
+            </span>
           </div>
-          <h2 className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-slate-900 via-indigo-950 to-brand-600 dark:from-white dark:via-dark-100 dark:to-brand-400 bg-clip-text text-transparent">
+          <h2 className="text-gradient-hero font-display font-extrabold text-3xl sm:text-4xl tracking-tight leading-none">
             Overview Analytics
           </h2>
-          <p className="text-slate-500 dark:text-dark-400 text-sm mt-1">
-            Monitor incoming loan submissions, approve requests, and evaluate portfolio trends.
+          <p className="text-slate-500 dark:text-dark-400 text-sm mt-2 font-sans max-w-md">
+            Monitor incoming loan submissions, approve requests, and track portfolio health in real time.
           </p>
         </div>
 
-        {/* Global Toolbar */}
-        <div className="flex items-center gap-3">
-          <motion.button
-            whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+          <motion.button whileHover={{ scale:1.05 }} whileTap={{ scale:0.95 }}
             onClick={handleRefresh}
-            className="p-2.5 rounded-xl border border-slate-200/50 dark:border-dark-800/50 glass-card hover:bg-white dark:hover:bg-dark-900 transition-colors shadow-sm text-slate-500 dark:text-dark-400"
-            title="Refresh Metrics"
-          >
-            <RefreshCw className="w-4.5 h-4.5" />
+            className="btn-ghost p-2.5 !px-2.5" title="Refresh">
+            <RefreshCw size={15} className={refreshing ? 'animate-spin' : ''} />
           </motion.button>
-          
-          <motion.button
-            whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-            onClick={exportToCSV}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200/50 dark:border-dark-800/50 glass-card hover:bg-white dark:hover:bg-dark-900 transition-colors shadow-sm text-sm font-semibold text-slate-700 dark:text-dark-300"
-          >
-            <Download className="w-4 h-4" />
-            Export CSV
+          <motion.button whileHover={{ scale:1.05 }} whileTap={{ scale:0.95 }}
+            onClick={exportCSV}
+            className="btn-ghost gap-2">
+            <Download size={14} /> <span className="hidden sm:inline">Export CSV</span>
           </motion.button>
-
-          <motion.button
-            whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+          <motion.button whileHover={{ scale:1.05 }} whileTap={{ scale:0.95 }}
             onClick={() => navigate('/apply')}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 hover:from-brand-500 hover:to-indigo-400 text-white shadow-glow-brand text-sm font-semibold transition-all"
-          >
-            <Plus className="w-4.5 h-4.5" />
-            New Application
+            className="btn-primary flex items-center gap-2">
+            <Plus size={15} /> New Application
           </motion.button>
         </div>
       </motion.div>
 
-      {/* Stats Cards Grid */}
-      <motion.div 
-        variants={containerVariants}
-        initial="hidden"
-        animate="show"
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
-      >
-        
-        {/* Total Applications Card */}
-        <motion.div variants={itemVariants} whileHover={{ y: -5 }} className="glass-panel rounded-2xl p-6 border border-white/40 dark:border-white/[0.05] relative overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-br from-brand-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          <div className="absolute top-0 right-0 p-4 opacity-10 dark:opacity-20 text-brand-500 transform group-hover:scale-110 transition-transform duration-500">
-            <Layers className="w-16 h-16" />
-          </div>
-          <span className="text-xs font-semibold text-slate-400 dark:text-dark-500 uppercase tracking-widest block relative z-10">Total Applications</span>
-          <div className="flex items-baseline gap-2 mt-2 relative z-10">
-            <span className="text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-              <AnimatedCounter value={summary.totalApplications || 0} />
-            </span>
-          </div>
-          <div className="mt-4 flex items-center text-xs text-brand-500 font-semibold gap-1 relative z-10">
-            <Activity className="w-3.5 h-3.5" />
-            <span>Active underwriting pipeline</span>
-          </div>
-        </motion.div>
+      {/* ── Stats cards ───────────────────────────────── */}
+      <motion.div variants={stagger} initial="hidden" animate="show"
+        className="grid grid-cols-2 lg:grid-cols-4 gap-4">
 
-        {/* Total Loan Amount Card */}
-        <motion.div variants={itemVariants} whileHover={{ y: -5 }} className="glass-panel rounded-2xl p-6 border border-white/40 dark:border-white/[0.05] relative overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          <div className="absolute top-0 right-0 p-4 opacity-10 dark:opacity-20 text-indigo-500 transform group-hover:scale-110 transition-transform duration-500">
-            <TrendingUp className="w-16 h-16" />
-          </div>
-          <span className="text-xs font-semibold text-slate-400 dark:text-dark-500 uppercase tracking-widest block relative z-10">Requested Amount</span>
-          <div className="flex items-baseline gap-1 mt-2 relative z-10">
-            <span className="text-sm font-extrabold text-indigo-500 select-none">₹</span>
-            <span className="text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-              <AnimatedCounter value={summary.totalAmount || 0} />
-            </span>
-          </div>
-          <div className="mt-4 flex items-center text-xs text-indigo-500 font-semibold gap-1 relative z-10">
-            <span>Average: ₹<AnimatedCounter value={summary.totalApplications > 0 ? Math.round((summary.totalAmount||0) / summary.totalApplications) : 0} /></span>
-          </div>
-        </motion.div>
-
-        {/* Approved Capital Card */}
-        <motion.div variants={itemVariants} whileHover={{ y: -5 }} className="glass-panel rounded-2xl p-6 border border-white/40 dark:border-white/[0.05] relative overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          <div className="absolute top-0 right-0 p-4 opacity-10 dark:opacity-20 text-emerald-500 transform group-hover:scale-110 transition-transform duration-500">
-            <UserCheck className="w-16 h-16" />
-          </div>
-          <span className="text-xs font-semibold text-slate-400 dark:text-dark-500 uppercase tracking-widest block relative z-10">Approved Volume</span>
-          <div className="flex items-baseline gap-1 mt-2 relative z-10">
-            <span className="text-sm font-extrabold text-emerald-500 select-none">₹</span>
-            <span className="text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-              <AnimatedCounter value={summary.approvedAmount || 0} />
-            </span>
-          </div>
-          <div className="mt-4 flex items-center text-xs text-emerald-500 font-semibold gap-1 relative z-10">
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            <span><AnimatedCounter value={summary.statusCounts?.approved || 0} /> applications approved</span>
-          </div>
-        </motion.div>
-
-        {/* Status Counts Breakdown Card */}
-        <motion.div variants={itemVariants} whileHover={{ y: -5 }} className="glass-panel rounded-2xl p-6 border border-white/40 dark:border-white/[0.05] relative overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          <div className="absolute top-0 right-0 p-4 opacity-10 dark:opacity-20 text-amber-500 transform group-hover:scale-110 transition-transform duration-500">
-            <Clock className="w-16 h-16" />
-          </div>
-          <span className="text-xs font-semibold text-slate-400 dark:text-dark-500 uppercase tracking-widest block relative z-10">Pending Reviews</span>
-          <div className="flex items-baseline gap-2 mt-2 relative z-10">
-            <span className="text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-              <AnimatedCounter value={summary.statusCounts?.pending || 0} />
-            </span>
-          </div>
-          <div className="mt-4 flex items-center text-xs justify-between gap-1 relative z-10">
-            <span className="text-amber-500 font-semibold flex items-center">
-              <Clock className="w-3.5 h-3.5 mr-1" />
-              {summary.statusCounts?.pending || 0} Pending
-            </span>
-            <span className="text-rose-500 font-semibold flex items-center">
-              <XCircle className="w-3.5 h-3.5 mr-1" />
-              {summary.statusCounts?.rejected || 0} Rejected
-            </span>
-          </div>
-        </motion.div>
-
+        {[
+          {
+            label: 'Total Applications', icon: Layers, color: 'brand',
+            value: summary.totalApplications || 0,
+            sub: 'Active underwriting pipeline',
+            accent: 'from-brand-500/8 to-transparent',
+            iconColor: 'text-brand-500 dark:text-brand-400',
+            iconBg: 'bg-brand-500/10 dark:bg-brand-500/15',
+          },
+          {
+            label: 'Capital Requested', icon: Wallet, color: 'indigo',
+            value: summary.totalAmount || 0, prefix: '₹',
+            sub: `Avg ₹${summary.totalApplications > 0 ? Math.round((summary.totalAmount||0)/summary.totalApplications).toLocaleString('en-IN') : 0}`,
+            accent: 'from-indigo-500/8 to-transparent',
+            iconColor: 'text-indigo-500 dark:text-indigo-400',
+            iconBg: 'bg-indigo-500/10 dark:bg-indigo-500/15',
+          },
+          {
+            label: 'Approved Volume', icon: UserCheck, color: 'emerald',
+            value: summary.approvedAmount || 0, prefix: '₹',
+            sub: `${summary.statusCounts?.approved || 0} applications approved`,
+            accent: 'from-emerald-500/8 to-transparent',
+            iconColor: 'text-emerald-500 dark:text-emerald-400',
+            iconBg: 'bg-emerald-500/10 dark:bg-emerald-500/15',
+          },
+          {
+            label: 'Pending Reviews', icon: Clock, color: 'amber',
+            value: summary.statusCounts?.pending || 0,
+            sub: `${summary.statusCounts?.rejected || 0} rejected`,
+            accent: 'from-amber-500/8 to-transparent',
+            iconColor: 'text-amber-500 dark:text-amber-400',
+            iconBg: 'bg-amber-500/10 dark:bg-amber-500/15',
+          },
+        ].map(({ label, icon: Icon, value, prefix='', sub, accent, iconColor, iconBg }) => (
+          <motion.div key={label} variants={rise}
+            whileHover={{ y: -4, transition: { duration: 0.2 } }}
+            className="glass-panel rounded-2xl p-5 relative overflow-hidden group cursor-default">
+            <div className={`absolute inset-0 bg-gradient-to-br ${accent} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[11px] font-display font-bold uppercase tracking-widest text-slate-400 dark:text-dark-500 leading-none">
+                  {label}
+                </span>
+                <div className={`w-8 h-8 rounded-lg ${iconBg} flex items-center justify-center`}>
+                  <Icon size={15} className={iconColor} />
+                </div>
+              </div>
+              <div className="font-display font-extrabold text-3xl text-slate-900 dark:text-white tracking-tight leading-none">
+                <AnimatedCounter value={value} prefix={prefix} />
+              </div>
+              <div className="mt-3 text-[11px] font-medium text-slate-400 dark:text-dark-500 flex items-center gap-1">
+                <ArrowUpRight size={11} className={iconColor} />
+                {sub}
+              </div>
+            </div>
+          </motion.div>
+        ))}
       </motion.div>
 
-      {/* Analytics Charts Grid */}
-      <motion.div 
-        variants={containerVariants}
-        initial="hidden"
-        animate="show"
-        className="grid grid-cols-1 lg:grid-cols-3 gap-6"
-      >
-        
-        {/* Main Line Area Chart */}
-        <motion.div variants={itemVariants} className="lg:col-span-2 glass-panel rounded-2xl p-6 border border-white/40 dark:border-white/[0.05] flex flex-col h-80 group">
-          <div className="mb-4 flex justify-between items-center">
+      {/* ── Charts ────────────────────────────────────── */}
+      <motion.div variants={stagger} initial="hidden" animate="show"
+        className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+        {/* Area chart */}
+        <motion.div variants={rise}
+          className="lg:col-span-2 glass-panel rounded-2xl p-5 border border-white/40 dark:border-white/[0.05] h-[300px] flex flex-col">
+          <div className="flex items-center justify-between mb-4 shrink-0">
             <div>
-              <h3 className="text-base font-bold text-slate-800 dark:text-dark-100 flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-brand-500" />
-                Capital Demand Curve
+              <h3 className="font-display font-bold text-slate-800 dark:text-dark-100 flex items-center gap-2 text-sm">
+                <TrendingUp size={15} className="text-brand-500" /> Capital Demand Curve
               </h3>
-              <p className="text-xs text-slate-400 dark:text-dark-500 mt-1">Amount requested in recent loan applications</p>
+              <p className="text-[11px] text-slate-400 dark:text-dark-500 mt-0.5">Loan amounts from recent applications</p>
             </div>
+            <span className="text-[10px] font-mono font-semibold text-slate-300 dark:text-dark-600 uppercase tracking-wider">Last 10</span>
           </div>
-          <div className="flex-1 w-full text-xs font-semibold transition-transform duration-500 group-hover:scale-[1.01]">
+          <div className="flex-1 min-h-0">
             {chartData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <AreaChart data={chartData} margin={{ top: 8, right: 4, left: -22, bottom: 0 }}>
                   <defs>
-                    <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0.0}/>
+                    <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%"  stopColor="#e8184a" stopOpacity={0.25} />
+                      <stop offset="95%" stopColor="#e8184a" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <XAxis dataKey="date" stroke="#6b7280" opacity={0.5} tickLine={false} axisLine={false} />
-                  <YAxis stroke="#6b7280" opacity={0.5} tickLine={false} axisLine={false} />
-                  <Tooltip 
-                    cursor={{ stroke: '#6366f1', strokeWidth: 1, strokeDasharray: '4 4' }}
-                    contentStyle={{ 
-                      background: 'rgba(17, 24, 39, 0.8)', 
-                      backdropFilter: 'blur(12px)',
-                      border: '1px solid rgba(255,255,255,0.1)', 
-                      borderRadius: '12px',
-                      color: '#fff',
-                      boxShadow: '0 20px 40px rgba(0,0,0,0.2)'
-                    }} 
-                    formatter={(value) => [`₹${value.toLocaleString('en-IN')}`, 'Amount']}
-                  />
-                  <Area type="monotone" dataKey="amount" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorAmount)" activeDot={{ r: 6, fill: '#6366f1', stroke: '#fff', strokeWidth: 2 }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
+                  <XAxis dataKey="date" tick={{ fontSize:10, fill:'#64748b' }} tickLine={false} axisLine={false} />
+                  <YAxis tick={{ fontSize:10, fill:'#64748b' }} tickLine={false} axisLine={false} />
+                  <Tooltip content={<ChartTooltip />} cursor={{ stroke:'rgba(232,24,74,0.2)', strokeWidth:1.5, strokeDasharray:'5 3' }} />
+                  <Area type="monotone" dataKey="amount" stroke="#e8184a" strokeWidth={2.5}
+                    fill="url(#areaGrad)"
+                    activeDot={{ r:5, fill:'#e8184a', stroke:'#fff', strokeWidth:2 }} />
                 </AreaChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-full flex items-center justify-center text-slate-400">
-                Submit applications to generate graphs.
+              <div className="h-full flex flex-col items-center justify-center gap-2 text-slate-400 dark:text-dark-600">
+                <BarChart3 size={28} className="opacity-40" />
+                <p className="text-xs font-medium">Submit applications to generate chart data</p>
               </div>
             )}
           </div>
         </motion.div>
 
-        {/* Language Preference Pie Chart */}
-        <motion.div variants={itemVariants} className="glass-panel rounded-2xl p-6 border border-white/40 dark:border-white/[0.05] flex flex-col h-80 group">
-          <div>
-            <h3 className="text-base font-bold text-slate-800 dark:text-dark-100 flex items-center gap-2">
-              <Languages className="w-4.5 h-4.5 text-brand-500" />
-              Language Demographics
+        {/* Pie chart */}
+        <motion.div variants={rise}
+          className="glass-panel rounded-2xl p-5 border border-white/40 dark:border-white/[0.05] h-[300px] flex flex-col">
+          <div className="shrink-0 mb-3">
+            <h3 className="font-display font-bold text-slate-800 dark:text-dark-100 flex items-center gap-2 text-sm">
+              <Languages size={15} className="text-brand-500" /> Language Split
             </h3>
-            <p className="text-xs text-slate-400 dark:text-dark-500 mt-1">Borrower preferred communication channels</p>
+            <p className="text-[11px] text-slate-400 dark:text-dark-500 mt-0.5">Borrower communication preferences</p>
           </div>
-          <div className="flex-1 flex items-center justify-center text-xs font-semibold relative transition-transform duration-500 group-hover:scale-[1.03]">
-            {summary.languageDistribution?.length > 0 ? (
-              <div className="w-full h-full flex flex-col items-center justify-center">
-                <div className="w-full h-[150px]">
+          <div className="flex-1 min-h-0 flex flex-col items-center justify-center">
+            {(summary.languageDistribution?.length > 0) ? (
+              <>
+                <div className="w-full h-[140px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
-                      <Pie
-                        data={summary.languageDistribution}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={50}
-                        outerRadius={70}
-                        paddingAngle={6}
-                        dataKey="value"
-                        stroke="none"
-                      >
-                        {summary.languageDistribution.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      <Pie data={summary.languageDistribution}
+                        cx="50%" cy="50%" innerRadius={44} outerRadius={62}
+                        paddingAngle={5} dataKey="value" stroke="none"
+                        animationBegin={200} animationDuration={800}>
+                        {summary.languageDistribution.map((_, i) => (
+                          <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
                         ))}
                       </Pie>
-                      <Tooltip 
-                        contentStyle={{ 
-                          background: 'rgba(17, 24, 39, 0.8)', 
-                          backdropFilter: 'blur(12px)',
-                          border: '1px solid rgba(255,255,255,0.1)', 
-                          borderRadius: '12px',
-                          color: '#fff' 
-                        }} 
-                      />
+                      <Tooltip contentStyle={{
+                        background:'rgba(15,22,35,0.95)', backdropFilter:'blur(12px)',
+                        border:'1px solid rgba(255,255,255,0.08)', borderRadius:'10px',
+                        color:'#fff', fontSize:'12px',
+                      }} />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
-                {/* Custom Legends */}
-                <div className="grid grid-cols-3 gap-y-3 gap-x-1 mt-4 w-full text-[10px]">
-                  {summary.languageDistribution.map((item, index) => (
-                    <div key={item.name} className="flex items-center gap-1.5 justify-center">
-                      <span className="w-2.5 h-2.5 rounded-full shadow-sm" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
-                      <span className="truncate text-slate-600 dark:text-dark-300 font-semibold">{item.name} ({item.value})</span>
+                <div className="grid grid-cols-2 gap-x-3 gap-y-2 w-full mt-2">
+                  {summary.languageDistribution.map((item, i) => (
+                    <div key={item.name} className="flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full shrink-0" style={{ background: PIE_COLORS[i % PIE_COLORS.length] }} />
+                      <span className="text-[11px] font-medium text-slate-600 dark:text-dark-300 truncate">{item.name} ({item.value})</span>
                     </div>
                   ))}
                 </div>
-              </div>
+              </>
             ) : (
-              <div className="text-slate-400">No demographic data available.</div>
+              <div className="flex flex-col items-center gap-2 text-slate-400 dark:text-dark-600">
+                <Languages size={26} className="opacity-40" />
+                <p className="text-xs font-medium">No data yet</p>
+              </div>
             )}
           </div>
         </motion.div>
-
       </motion.div>
 
-      {/* Applications List Table Section */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="space-y-4"
-      >
-        
-        {/* Table Filters header */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 glass-panel rounded-2xl border border-white/40 dark:border-white/[0.05]">
-          
-          {/* Search bar */}
-          <div className="relative w-full sm:w-80">
-            <Search className="absolute inset-y-0 left-3.5 w-4 h-4 my-auto text-slate-400 dark:text-dark-500" />
+      {/* ── Applications table ────────────────────────── */}
+      <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.25 }}>
+
+        {/* Toolbar */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-3
+          p-3 glass-panel rounded-2xl border border-white/40 dark:border-white/[0.05]">
+
+          <div className="relative flex-1 max-w-xs">
+            <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-dark-500 pointer-events-none" />
             <input
-              type="text"
-              placeholder="Search by applicant or mobile..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200/50 dark:border-dark-800/50 bg-white/50 dark:bg-dark-900/50 backdrop-blur-sm text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:focus:border-brand-500 transition-all shadow-sm"
-            />
+              value={search} onChange={e => setSearch(e.target.value)}
+              placeholder="Search name or mobile…"
+              className="input-base pl-9 pr-4 py-2.5 text-[13px]" />
           </div>
 
-          {/* Status Dropdowns */}
-          <div className="flex w-full sm:w-auto items-center gap-3">
-            <div className="flex items-center gap-2 text-slate-400 text-xs font-semibold uppercase tracking-wider select-none">
-              <Filter className="w-3.5 h-3.5" />
-              <span>Status</span>
-            </div>
-            
-            <div className="relative w-full sm:w-44">
+          <div className="flex items-center gap-2.5">
+            <Filter size={13} className="text-slate-400 dark:text-dark-500 shrink-0" />
+            <div className="relative">
               <select
-                value={statusFilter}
-                onChange={(e) => {
-                  setStatusFilter(e.target.value);
-                  setCurrentPage(1); // reset to page 1
-                }}
-                className="w-full pl-4 pr-10 py-2.5 rounded-xl border border-slate-200/50 dark:border-dark-800/50 bg-white/50 dark:bg-dark-900/50 backdrop-blur-sm text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 appearance-none shadow-sm font-medium"
-              >
+                value={filter}
+                onChange={e => { setFilter(e.target.value); setPage(1); }}
+                className="input-base pl-3 pr-8 py-2.5 text-[13px] appearance-none min-w-[160px]">
                 <option value="all">All Applications</option>
                 <option value="pending">Pending Review</option>
                 <option value="approved">Approved</option>
                 <option value="rejected">Rejected</option>
               </select>
-              <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400 dark:text-dark-500">
-                <svg className="h-4 w-4 fill-current" viewBox="0 0 20 20">
-                  <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+              <div className="absolute inset-y-0 right-2.5 flex items-center pointer-events-none text-slate-400">
+                <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20">
+                  <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
                 </svg>
               </div>
             </div>
           </div>
-
         </div>
 
-        {/* Table list */}
-        <div className="glass-panel rounded-2xl border border-white/40 dark:border-white/[0.05] overflow-hidden shadow-glass relative">
+        {/* Table */}
+        <div className="glass-panel rounded-2xl border border-white/40 dark:border-white/[0.05] overflow-hidden shadow-glass">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-slate-200/50 dark:divide-dark-800/40">
-              <thead className="bg-slate-100/50 dark:bg-dark-900/50 backdrop-blur-md">
+            <table className="min-w-full divide-y divide-slate-100/60 dark:divide-dark-800/40 text-sm">
+              <thead className="bg-slate-50/70 dark:bg-dark-900/60 backdrop-blur-sm">
                 <tr>
-                  <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-dark-400">ID / Date</th>
-                  <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-dark-400">Applicant</th>
-                  <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-dark-400">Mobile</th>
-                  <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-dark-400">Amount (₹)</th>
-                  <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-dark-400">Language</th>
-                  <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-dark-400">Status</th>
-                  <th className="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-dark-400">Actions</th>
+                  {['ID / Date','Applicant','Mobile','Amount (₹)','Language','Status','Actions'].map(h => (
+                    <th key={h} className="px-5 py-3.5 text-left text-[10px] font-display font-bold uppercase tracking-[0.1em] text-slate-400 dark:text-dark-500">
+                      {h}
+                    </th>
+                  ))}
                 </tr>
               </thead>
-              
-              <tbody className="divide-y divide-slate-100/50 dark:divide-dark-800/40 text-sm bg-white/20 dark:bg-dark-950/20">
+              <tbody className="divide-y divide-slate-100/50 dark:divide-dark-800/30 bg-white/10 dark:bg-transparent">
                 <AnimatePresence mode="wait">
                   {loading ? (
-                    // Loading skeletons
-                    <motion.tr
-                      key="loading"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                    >
-                      <td colSpan={7} className="p-0">
-                        {Array.from({ length: 5 }).map((_, idx) => (
-                          <div key={`skeleton-${idx}`} className="flex px-6 py-4 items-center gap-4 w-full border-b border-slate-100 dark:border-dark-800 last:border-0">
-                            <div className="h-4 bg-slate-200/50 dark:bg-dark-800/50 rounded animate-pulse w-24"></div>
-                            <div className="h-4 bg-slate-200/50 dark:bg-dark-800/50 rounded animate-pulse w-32 ml-10"></div>
-                            <div className="h-4 bg-slate-200/50 dark:bg-dark-800/50 rounded animate-pulse w-20 ml-10"></div>
-                            <div className="h-4 bg-slate-200/50 dark:bg-dark-800/50 rounded animate-pulse w-20 ml-auto"></div>
-                          </div>
-                        ))}
-                      </td>
-                    </motion.tr>
+                    <SkeletonRow key="skel" />
                   ) : applications.length === 0 ? (
-                    // Empty state
-                    <motion.tr
-                      key="empty"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                    >
-                      <td colSpan={7} className="px-6 py-16 text-center text-slate-400 dark:text-dark-500">
-                        <div className="flex flex-col items-center justify-center gap-3">
-                          <Layers className="w-10 h-10 stroke-[1.5] text-slate-300 dark:text-dark-700" />
-                          <p className="font-semibold text-sm">No loan applications found</p>
-                          <p className="text-xs text-slate-400 dark:text-dark-500 max-w-xs">Adjust your search/filters or submit a new application to see data here.</p>
+                    <motion.tr key="empty" initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}>
+                      <td colSpan={7}>
+                        <div className="flex flex-col items-center justify-center gap-3 py-16 text-slate-400 dark:text-dark-600">
+                          <AlertCircle size={32} strokeWidth={1.2} />
+                          <p className="font-semibold text-sm text-slate-500 dark:text-dark-500">No applications found</p>
+                          <p className="text-xs">Adjust your search or filter, or submit a new application.</p>
                         </div>
                       </td>
                     </motion.tr>
                   ) : (
-                    // Table Rows
-                    applications.map((app, i) => (
-                      <motion.tr
-                        key={app.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ delay: i * 0.05 }}
-                        className="hover:bg-white/60 dark:hover:bg-dark-800/40 transition-colors group cursor-pointer"
-                      >
-                        {/* ID and Date */}
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex flex-col gap-0.5">
+                    applications.map((app, i) => {
+                      const lc = langColor(app.preferred_language);
+                      return (
+                        <motion.tr
+                          key={app.id}
+                          initial={{ opacity:0, y:8 }}
+                          animate={{ opacity:1, y:0 }}
+                          exit={{ opacity:0 }}
+                          transition={{ delay: i * 0.04, duration: 0.25 }}
+                          className="group hover:bg-white/60 dark:hover:bg-dark-800/30 transition-colors duration-150 cursor-default"
+                        >
+                          {/* ID + date */}
+                          <td className="px-5 py-4 whitespace-nowrap">
                             <div className="flex items-center gap-1.5">
-                              <code className="text-[11px] font-semibold font-mono text-slate-500 dark:text-dark-400 select-all group-hover:text-brand-500 transition-colors">
-                                {app.id.substring(0, 8)}...
+                              <code className="text-[11px] font-mono font-semibold text-slate-400 dark:text-dark-500 group-hover:text-brand-500 transition-colors">
+                                {app.id.substring(0,8)}…
                               </code>
-                              <button
-                                onClick={() => copyId(app.id)}
-                                className="p-0.5 rounded text-slate-400 hover:text-slate-700 dark:hover:text-dark-200 hover:bg-slate-100 dark:hover:bg-dark-800 transition-colors"
-                                title="Copy full application ID"
-                              >
-                                {copiedId === app.id ? (
-                                  <Check className="w-3 h-3 text-emerald-500" />
-                                ) : (
-                                  <Copy className="w-3 h-3" />
-                                )}
+                              <button onClick={() => copyId(app.id)}
+                                className="opacity-0 group-hover:opacity-100 p-0.5 rounded text-slate-400 hover:text-brand-500 transition-all">
+                                {copiedId === app.id ? <Check size={11} className="text-emerald-500" /> : <Copy size={11} />}
                               </button>
                             </div>
-                            <span className="text-[10px] text-slate-400 dark:text-dark-500 flex items-center font-medium gap-1">
-                              <Calendar className="w-3 h-3" />
-                              {new Date(app.created_at).toLocaleDateString('en-IN', {
-                                month: 'short',
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                              })}
+                            <span className="text-[10px] text-slate-400 dark:text-dark-600 flex items-center gap-1 mt-0.5 font-medium">
+                              <Calendar size={10} />
+                              {new Date(app.created_at).toLocaleDateString('en-IN',{ month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' })}
                             </span>
-                          </div>
-                        </td>
+                          </td>
 
-                        {/* Applicant Name */}
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="font-semibold text-slate-800 dark:text-dark-100 block truncate max-w-[150px]" title={app.applicant_name}>
-                            {app.applicant_name}
-                          </span>
-                          <span className="text-[10px] font-medium text-slate-400 dark:text-dark-500 block truncate max-w-[150px]" title={app.loan_purpose}>
-                            {app.loan_purpose}
-                          </span>
-                        </td>
+                          {/* Applicant */}
+                          <td className="px-5 py-4 whitespace-nowrap">
+                            <p className="font-semibold text-slate-800 dark:text-dark-100 text-[13px] truncate max-w-[140px]">{app.applicant_name}</p>
+                            <p className="text-[11px] text-slate-400 dark:text-dark-500 truncate max-w-[140px] mt-0.5">{app.loan_purpose}</p>
+                          </td>
 
-                        {/* Mobile Number */}
-                        <td className="px-6 py-4 whitespace-nowrap font-mono text-xs font-bold text-slate-600 dark:text-dark-300">
-                          {app.mobile_number}
-                        </td>
+                          {/* Mobile */}
+                          <td className="px-5 py-4 whitespace-nowrap">
+                            <span className="font-mono text-[12px] font-semibold text-slate-600 dark:text-dark-300">{app.mobile_number}</span>
+                          </td>
 
-                        {/* Loan Amount */}
-                        <td className="px-6 py-4 whitespace-nowrap font-bold text-slate-800 dark:text-dark-100">
-                          ₹{parseFloat(app.loan_amount).toLocaleString('en-IN')}
-                        </td>
+                          {/* Amount */}
+                          <td className="px-5 py-4 whitespace-nowrap">
+                            <span className="font-display font-bold text-slate-800 dark:text-dark-100">
+                              ₹{parseFloat(app.loan_amount).toLocaleString('en-IN')}
+                            </span>
+                          </td>
 
-                        {/* Language */}
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${getLanguageBadgeColor(app.preferred_language)}`}>
-                            {app.preferred_language}
-                          </span>
-                        </td>
+                          {/* Language */}
+                          <td className="px-5 py-4 whitespace-nowrap">
+                            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold border ${lc.bg} ${lc.text} ${lc.border}`}>
+                              {app.preferred_language}
+                            </span>
+                          </td>
 
-                        {/* Status badge */}
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold ${getStatusBadge(app.status)} shadow-sm`}>
-                            {getStatusIcon(app.status)}
-                            <span className="capitalize">{app.status}</span>
-                          </span>
-                        </td>
+                          {/* Status */}
+                          <td className="px-5 py-4 whitespace-nowrap">
+                            <span className={`badge-${app.status}`}>
+                              {app.status === 'approved' && <CheckCircle2 size={11} />}
+                              {app.status === 'rejected' && <XCircle size={11} />}
+                              {app.status === 'pending'  && <Clock size={11} className="animate-pulse-glow" />}
+                              <span className="capitalize">{app.status}</span>
+                            </span>
+                          </td>
 
-                        {/* Action Status Update Trigger */}
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-semibold">
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => setSelectedAppForStatus(app)}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-dark-700 bg-white dark:bg-dark-800 hover:bg-slate-50 dark:hover:bg-dark-700 text-slate-600 dark:text-dark-200 transition-colors shadow-sm"
-                          >
-                            <ArrowRightLeft className="w-3.5 h-3.5" />
-                            Update
-                          </motion.button>
-                        </td>
-                      </motion.tr>
-                    ))
+                          {/* Action */}
+                          <td className="px-5 py-4 whitespace-nowrap text-right">
+                            <motion.button
+                              whileHover={{ scale:1.05 }} whileTap={{ scale:0.95 }}
+                              onClick={() => setModalApp(app)}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl
+                                border border-slate-200/60 dark:border-dark-700/60
+                                bg-white/60 dark:bg-dark-800/60
+                                hover:border-brand-500/40 hover:bg-brand-500/5
+                                text-slate-600 dark:text-dark-300 text-xs font-semibold transition-all duration-150">
+                              <ArrowRightLeft size={11} /> Update
+                            </motion.button>
+                          </td>
+                        </motion.tr>
+                      );
+                    })
                   )}
                 </AnimatePresence>
               </tbody>
             </table>
           </div>
 
-          {/* Table Pagination footer */}
+          {/* Pagination */}
           {pagination.pages > 1 && (
-            <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200/50 dark:border-dark-800/40 bg-slate-50/50 dark:bg-dark-900/50 text-xs font-semibold backdrop-blur-md">
-              <span className="text-slate-500 dark:text-dark-400">
-                Page {pagination.page} of {pagination.pages} ({pagination.total} entries)
+            <div className="flex items-center justify-between px-5 py-3.5
+              border-t border-slate-100/60 dark:border-dark-800/40
+              bg-slate-50/50 dark:bg-dark-900/40 backdrop-blur-sm text-xs font-semibold">
+              <span className="text-slate-400 dark:text-dark-500">
+                Page {pagination.page} of {pagination.pages} · {pagination.total} entries
               </span>
-              <div className="flex gap-2">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  disabled={currentPage <= 1 || loading}
-                  onClick={() => setCurrentPage(currentPage - 1)}
-                  className="p-1.5 rounded-lg border border-slate-200 dark:border-dark-700 bg-white dark:bg-dark-800 text-slate-600 dark:text-dark-300 disabled:opacity-40 transition-opacity shadow-sm"
-                >
-                  <ChevronLeft className="w-4 h-4" />
+              <div className="flex gap-1.5">
+                <motion.button whileHover={{ scale:1.08 }} whileTap={{ scale:0.92 }}
+                  disabled={page <= 1 || loading} onClick={() => setPage(p => p - 1)}
+                  className="p-1.5 rounded-lg border border-slate-200/60 dark:border-dark-700/60 bg-white/60 dark:bg-dark-800/60
+                    text-slate-500 dark:text-dark-400 disabled:opacity-30 transition-opacity">
+                  <ChevronLeft size={14} />
                 </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  disabled={currentPage >= pagination.pages || loading}
-                  onClick={() => setCurrentPage(currentPage + 1)}
-                  className="p-1.5 rounded-lg border border-slate-200 dark:border-dark-700 bg-white dark:bg-dark-800 text-slate-600 dark:text-dark-300 disabled:opacity-40 transition-opacity shadow-sm"
-                >
-                  <ChevronRight className="w-4 h-4" />
+                <motion.button whileHover={{ scale:1.08 }} whileTap={{ scale:0.92 }}
+                  disabled={page >= pagination.pages || loading} onClick={() => setPage(p => p + 1)}
+                  className="p-1.5 rounded-lg border border-slate-200/60 dark:border-dark-700/60 bg-white/60 dark:bg-dark-800/60
+                    text-slate-500 dark:text-dark-400 disabled:opacity-30 transition-opacity">
+                  <ChevronRight size={14} />
                 </motion.button>
               </div>
             </div>
@@ -702,115 +513,112 @@ export default function Dashboard() {
         </div>
       </motion.div>
 
-      {/* Status Update Modal (Overlay) */}
+      {/* ── Status Modal ──────────────────────────────── */}
       <AnimatePresence>
-        {selectedAppForStatus && (
+        {modalApp && (
           <>
-            {/* Modal Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setSelectedAppForStatus(null)}
-              className="fixed inset-0 bg-slate-900/40 dark:bg-black/60 backdrop-blur-sm z-50"
-            />
-            {/* Modal Content */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 15 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-              className="fixed inset-0 m-auto w-full max-w-md h-fit glass-panel bg-white/90 dark:bg-dark-900/90 p-6 rounded-2xl border border-white/50 dark:border-white/[0.05] shadow-2xl z-50 overflow-hidden"
-            >
-              <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-brand-600 to-indigo-600" />
-              
-              <div className="flex justify-between items-center mb-4 relative z-10">
-                <h3 className="text-lg font-bold text-slate-800 dark:text-dark-100 flex items-center gap-2">
-                  <Activity className="w-5 h-5 text-brand-500" />
-                  Update Status
-                </h3>
-                <motion.button
-                  whileHover={{ scale: 1.1, rotate: 90 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => setSelectedAppForStatus(null)}
-                  className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-dark-800 text-slate-400 dark:text-dark-500 transition-all"
-                >
-                  <XCircle className="w-5 h-5" />
-                </motion.button>
-              </div>
+            <motion.div key="modal-bg"
+              initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}
+              onClick={() => setModalApp(null)}
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50" />
 
-              {/* Applicant Context */}
-              <div className="bg-white dark:bg-dark-950 rounded-xl p-4 border border-slate-200/50 dark:border-dark-850/50 text-xs space-y-2 mb-6 shadow-inner relative z-10">
-                <div>
-                  <span className="text-slate-400 dark:text-dark-500 block uppercase tracking-wider font-semibold">Applicant Name</span>
-                  <span className="text-sm font-bold text-slate-800 dark:text-dark-200">{selectedAppForStatus.applicant_name}</span>
+            <motion.div key="modal"
+              initial={{ opacity:0, scale:0.94, y:20 }}
+              animate={{ opacity:1, scale:1, y:0 }}
+              exit={{ opacity:0, scale:0.94, y:20 }}
+              transition={{ type:'spring', stiffness:340, damping:28 }}
+              className="fixed inset-0 m-auto w-full max-w-md h-fit z-50
+                glass-panel bg-white/95 dark:bg-dark-900/95
+                rounded-2xl border border-white/50 dark:border-white/[0.06]
+                shadow-[0_24px_80px_rgba(0,0,0,0.5)] overflow-hidden">
+
+              {/* Top accent */}
+              <div className="h-1 w-full" style={{ background:'linear-gradient(90deg,#e8184a,#a80933)' }} />
+
+              <div className="p-6">
+                {/* Modal header */}
+                <div className="flex items-center justify-between mb-5">
+                  <h3 className="font-display font-bold text-slate-800 dark:text-dark-100 flex items-center gap-2">
+                    <Activity size={16} className="text-brand-500" /> Update Application Status
+                  </h3>
+                  <motion.button whileHover={{ scale:1.1, rotate:90 }} whileTap={{ scale:0.9 }}
+                    onClick={() => setModalApp(null)}
+                    className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-dark-800 hover:text-slate-600 transition-all">
+                    <XCircle size={16} />
+                  </motion.button>
                 </div>
-                <div className="grid grid-cols-2 gap-4 pt-1">
+
+                {/* Applicant info */}
+                <div className="rounded-xl p-4 mb-5
+                  bg-slate-50/80 dark:bg-dark-950/60
+                  border border-slate-200/60 dark:border-dark-800/60 space-y-3">
                   <div>
-                    <span className="text-slate-400 dark:text-dark-500 block uppercase tracking-wider font-semibold">Amount</span>
-                    <span className="text-sm font-bold text-slate-800 dark:text-dark-200">₹{parseFloat(selectedAppForStatus.loan_amount).toLocaleString('en-IN')}</span>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-dark-600 mb-1">Applicant</p>
+                    <p className="font-display font-bold text-slate-800 dark:text-dark-100 text-base">{modalApp.applicant_name}</p>
                   </div>
-                  <div>
-                    <span className="text-slate-400 dark:text-dark-500 block uppercase tracking-wider font-semibold">Current Status</span>
-                    <span className="text-sm font-bold capitalize text-brand-500 dark:text-brand-400">{selectedAppForStatus.status}</span>
+                  <div className="grid grid-cols-2 gap-3 pt-1">
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-dark-600 mb-1">Loan Amount</p>
+                      <p className="font-display font-bold text-slate-800 dark:text-dark-100">₹{parseFloat(modalApp.loan_amount).toLocaleString('en-IN')}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-dark-600 mb-1">Current Status</p>
+                      <span className={`badge-${modalApp.status} capitalize`}>{modalApp.status}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Action Toggles */}
-              <div className="space-y-3 relative z-10">
-                <span className="block text-xs font-semibold text-slate-400 dark:text-dark-500 uppercase tracking-widest">
-                  Choose Status
-                </span>
-                
-                <div className="grid grid-cols-3 gap-3">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-                    onClick={() => handleStatusUpdate(selectedAppForStatus.id, 'pending')}
-                    className={`flex flex-col items-center justify-center p-3 rounded-xl border text-sm font-semibold transition-all ${
-                      selectedAppForStatus.status === 'pending'
-                        ? 'border-amber-500 bg-amber-500/10 text-amber-600 dark:text-amber-400 shadow-glow'
-                        : 'border-slate-200 dark:border-dark-800 bg-white/50 dark:bg-dark-800/50 hover:bg-slate-50 dark:hover:bg-dark-700'
-                    }`}
-                  >
-                    <Clock className="w-5 h-5 mb-1" />
-                    Pending
-                  </motion.button>
-
-                  <motion.button
-                    whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-                    onClick={() => handleStatusUpdate(selectedAppForStatus.id, 'approved')}
-                    className={`flex flex-col items-center justify-center p-3 rounded-xl border text-sm font-semibold transition-all ${
-                      selectedAppForStatus.status === 'approved'
-                        ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shadow-glow'
-                        : 'border-slate-200 dark:border-dark-800 bg-white/50 dark:bg-dark-800/50 hover:bg-slate-50 dark:hover:bg-dark-700'
-                    }`}
-                  >
-                    <CheckCircle2 className="w-5 h-5 mb-1" />
-                    Approve
-                  </motion.button>
-
-                  <motion.button
-                    whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-                    onClick={() => handleStatusUpdate(selectedAppForStatus.id, 'rejected')}
-                    className={`flex flex-col items-center justify-center p-3 rounded-xl border text-sm font-semibold transition-all ${
-                      selectedAppForStatus.status === 'rejected'
-                        ? 'border-rose-500 bg-rose-500/10 text-rose-600 dark:text-rose-400 shadow-glow'
-                        : 'border-slate-200 dark:border-dark-800 bg-white/50 dark:bg-dark-800/50 hover:bg-slate-50 dark:hover:bg-dark-700'
-                    }`}
-                  >
-                    <XCircle className="w-5 h-5 mb-1" />
-                    Reject
-                  </motion.button>
+                {/* Status buttons */}
+                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-dark-600 mb-3">Choose New Status</p>
+                <div className="grid grid-cols-3 gap-3 mb-6">
+                  {[
+                    {
+                      s: 'pending',
+                      label: 'Pending',
+                      Icon: Clock,
+                      activeClass: 'border-amber-500/50 bg-amber-500/10 text-amber-600 dark:text-amber-400',
+                      iconColor: 'text-amber-500',
+                    },
+                    {
+                      s: 'approved',
+                      label: 'Approve',
+                      Icon: CheckCircle2,
+                      activeClass: 'border-emerald-500/50 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
+                      iconColor: 'text-emerald-500',
+                    },
+                    {
+                      s: 'rejected',
+                      label: 'Reject',
+                      Icon: XCircle,
+                      activeClass: 'border-rose-500/50 bg-rose-500/10 text-rose-600 dark:text-rose-400',
+                      iconColor: 'text-rose-500',
+                    },
+                  ].map(({ s, label, Icon, activeClass, iconColor }) => {
+                    const active = modalApp.status === s;
+                    return (
+                      <motion.button key={s}
+                        whileHover={{ scale:1.04 }} whileTap={{ scale:0.96 }}
+                        onClick={() => handleStatusUpdate(modalApp.id, s)}
+                        className={`flex flex-col items-center justify-center gap-1.5 py-3.5 px-2 rounded-xl
+                          border font-semibold text-sm transition-all duration-200 ${
+                          active
+                            ? `${activeClass} shadow-sm`
+                            : 'border-slate-200/60 dark:border-dark-700/50 bg-white/40 dark:bg-dark-800/40 text-slate-500 dark:text-dark-400 hover:border-slate-300 dark:hover:border-dark-600'
+                        }`}>
+                        <Icon size={18} className={active ? iconColor : ''} />
+                        <span className="text-[12px]">{label}</span>
+                      </motion.button>
+                    );
+                  })}
                 </div>
-              </div>
 
-              <div className="mt-6 pt-4 border-t border-slate-200/50 dark:border-dark-800/50 flex gap-3 relative z-10">
-                <button
-                  onClick={() => setSelectedAppForStatus(null)}
-                  className="w-full py-2.5 rounded-xl border border-slate-200 dark:border-dark-700 bg-white/50 dark:bg-dark-800/50 hover:bg-slate-100 dark:hover:bg-dark-700 text-xs font-semibold text-slate-700 dark:text-dark-300 transition-colors shadow-sm"
-                >
-                  Cancel
+                <button onClick={() => setModalApp(null)}
+                  className="w-full py-2.5 rounded-xl text-xs font-semibold
+                    border border-slate-200/60 dark:border-dark-700/50
+                    bg-slate-50/50 dark:bg-dark-800/40
+                    text-slate-600 dark:text-dark-300
+                    hover:bg-slate-100 dark:hover:bg-dark-700 transition-colors">
+                  Close
                 </button>
               </div>
             </motion.div>
