@@ -44,34 +44,9 @@ export default function ParticleBackground() {
         className="absolute -bottom-[15%] -right-[10%] w-[50%] h-[50%] rounded-full bg-gradient-radial from-indigo-500/15 via-purple-600/5 to-transparent blur-[120px] animate-pulse-glow dark:from-indigo-500/15"
       />
       
-      {/* Floating Orbs */}
-      <motion.div
-        animate={{
-          y: [0, -20, 0],
-          x: [0, 10, 0],
-          rotate: [0, 5, 0]
-        }}
-        transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute top-[30%] left-[20%] w-64 h-64 rounded-full bg-brand-400/20 blur-[100px]"
-      />
-      <motion.div
-        animate={{
-          y: [0, 30, 0],
-          x: [0, -15, 0],
-          rotate: [0, -5, 0]
-        }}
-        transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-        className="absolute top-[60%] right-[30%] w-80 h-80 rounded-full bg-indigo-400/20 blur-[120px]"
-      />
-      <motion.div
-        animate={{
-          y: [0, -40, 0],
-          x: [0, 30, 0],
-          scale: [1, 1.2, 1]
-        }}
-        transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
-        className="absolute bottom-[10%] left-[30%] w-96 h-96 rounded-full bg-rose-500/10 dark:bg-rose-500/15 blur-[120px]"
-      />
+      <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] max-w-[600px] max-h-[600px] rounded-full bg-brand-500/20 dark:bg-brand-500/30 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-float-orb-1" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[45vw] h-[45vw] max-w-[500px] max-h-[500px] rounded-full bg-indigo-500/20 dark:bg-indigo-500/30 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-float-orb-2" />
+      <div className="absolute top-[40%] right-[20%] w-[35vw] h-[35vw] max-w-[400px] max-h-[400px] rounded-full bg-rose-500/10 dark:bg-rose-500/20 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-float-orb-1" style={{ animationDelay: '-5s' }} />
 
       {/* Subtle noise overlay */}
       <div 

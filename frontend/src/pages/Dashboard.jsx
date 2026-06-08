@@ -101,6 +101,19 @@ export default function Dashboard() {
   const [copiedId,  setCopiedId]  = useState(null);
   const [modalApp,  setModalApp]  = useState(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [time, setTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const getGreeting = () => {
+    const hour = time.getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 17) return 'Good Afternoon';
+    return 'Good Evening';
+  };
 
   /* debounce search */
   useEffect(() => {
@@ -171,9 +184,13 @@ export default function Dashboard() {
             <span className="text-[11px] font-display font-bold tracking-[0.15em] text-brand-500 dark:text-brand-400 uppercase text-glow">
               Operations Center
             </span>
+            <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-dark-600 mx-1"></span>
+            <span className="text-[11px] font-mono font-medium text-slate-500 dark:text-dark-400">
+              {time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+            </span>
           </div>
           <h2 className="text-gradient-hero font-display font-extrabold text-3xl sm:text-4xl tracking-tight leading-none">
-            Overview Analytics
+            {getGreeting()}, Team.
           </h2>
           <p className="text-slate-500 dark:text-dark-400 text-sm mt-2 font-sans max-w-md">
             Monitor incoming loan submissions, approve requests, and track portfolio health in real time.

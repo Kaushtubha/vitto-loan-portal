@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
+import confetti from 'canvas-confetti';
 
 const LANGUAGES = [
   { value: 'English', label: 'English',           flag: '🇬🇧' },
@@ -106,6 +107,12 @@ export default function ApplyLoan() {
       if (res) {
         setSuccess(res);
         setForm({ applicant_name:'', mobile_number:'', loan_amount:'', loan_purpose:'', preferred_language:'' });
+        confetti({
+          particleCount: 150,
+          spread: 80,
+          origin: { y: 0.6 },
+          colors: ['#e8184a', '#6366f1', '#10b981', '#f59e0b']
+        });
       }
     } catch {}
   };
