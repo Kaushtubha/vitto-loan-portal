@@ -400,9 +400,17 @@ export default function Dashboard() {
             <table className="min-w-full divide-y divide-slate-100/60 dark:divide-dark-800/40 text-sm">
               <thead className="bg-slate-100/50 dark:bg-dark-900/60 backdrop-blur-md border-b border-slate-200/60 dark:border-white/10">
                 <tr>
-                  {['ID / Date','Applicant','Mobile','Amount (₹)','Language','Status','Actions'].map(h => (
-                    <th key={h} className={`px-5 py-4 text-[10px] font-display font-bold uppercase tracking-[0.1em] text-slate-400 dark:text-dark-500 ${h === 'Amount (₹)' ? 'text-right' : 'text-left'}`}>
-                      {h}
+                  {[
+                    { label: 'ID / Date', align: 'left', width: 'w-32' },
+                    { label: 'Applicant', align: 'left', width: 'w-48' },
+                    { label: 'Mobile', align: 'left', width: 'w-32' },
+                    { label: 'Amount (₹)', align: 'right', width: 'min-w-[140px] w-40 pr-8' },
+                    { label: 'Language', align: 'left', width: 'w-28' },
+                    { label: 'Status', align: 'left', width: 'w-32' },
+                    { label: 'Actions', align: 'left', width: 'w-24' }
+                  ].map(h => (
+                    <th key={h.label} className={`px-5 py-3.5 text-[10px] font-display font-bold uppercase tracking-[0.1em] text-slate-400 dark:text-dark-500 ${h.align === 'right' ? 'text-right' : 'text-left'} ${h.width}`}>
+                      {h.label}
                     </th>
                   ))}
                 </tr>
@@ -434,7 +442,7 @@ export default function Dashboard() {
                           className="group hover:bg-white/90 dark:hover:bg-brand-900/10 transition-all duration-200 cursor-default hover:shadow-sm dark:hover:shadow-[0_2px_15px_rgba(232,24,74,0.05)] border-l-2 border-transparent hover:border-brand-500"
                         >
                           {/* ID + date */}
-                          <td className="px-5 py-4 whitespace-nowrap pl-4">
+                          <td className="px-5 py-3.5 whitespace-nowrap pl-4 align-middle">
                             <div className="flex items-center gap-1.5">
                               <code className="text-[11px] font-mono font-semibold text-slate-400 dark:text-dark-500 group-hover:text-brand-500 transition-colors">
                                 {app.id.substring(0,8)}…
@@ -451,32 +459,32 @@ export default function Dashboard() {
                           </td>
 
                           {/* Applicant */}
-                          <td className="px-5 py-4 whitespace-nowrap">
+                          <td className="px-5 py-3.5 whitespace-nowrap align-middle">
                             <p className="font-semibold text-slate-800 dark:text-dark-100 text-[13px] truncate max-w-[140px]">{app.applicant_name}</p>
                             <p className="text-[11px] text-slate-400 dark:text-dark-500 truncate max-w-[140px] mt-0.5">{app.loan_purpose}</p>
                           </td>
 
                           {/* Mobile */}
-                          <td className="px-5 py-4 whitespace-nowrap">
+                          <td className="px-5 py-3.5 whitespace-nowrap align-middle">
                             <span className="font-mono text-[12px] font-semibold text-slate-600 dark:text-dark-300">{app.mobile_number}</span>
                           </td>
 
                           {/* Amount */}
-                          <td className="px-5 py-4 whitespace-nowrap text-right">
-                            <span className="font-display font-bold tabular-nums tracking-tight text-slate-800 dark:text-dark-100 text-[14px]">
+                          <td className="px-5 py-3.5 whitespace-nowrap text-right pr-8 align-middle">
+                            <span className="font-display font-semibold tabular-nums tracking-tight text-slate-700 dark:text-dark-200 text-[13px]">
                               ₹{parseFloat(app.loan_amount).toLocaleString('en-IN')}
                             </span>
                           </td>
 
                           {/* Language */}
-                          <td className="px-5 py-4 whitespace-nowrap">
+                          <td className="px-5 py-3.5 whitespace-nowrap align-middle">
                             <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold border ${lc.bg} ${lc.text} ${lc.border}`}>
                               {app.preferred_language}
                             </span>
                           </td>
 
                           {/* Status */}
-                          <td className="px-5 py-4 whitespace-nowrap">
+                          <td className="px-5 py-3.5 whitespace-nowrap align-middle">
                             <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border ${statusColor(app.status).bg} ${statusColor(app.status).text} ${statusColor(app.status).border}`}>
                               {app.status === 'approved' && <CheckCircle2 size={11} />}
                               {app.status === 'rejected' && <XCircle size={11} />}
@@ -486,7 +494,7 @@ export default function Dashboard() {
                           </td>
 
                           {/* Action */}
-                          <td className="px-5 py-4 whitespace-nowrap text-right">
+                          <td className="px-5 py-3.5 whitespace-nowrap align-middle">
                             <motion.button
                               whileHover={{ scale:1.05 }} whileTap={{ scale:0.95 }}
                               onClick={() => setModalApp(app)}
