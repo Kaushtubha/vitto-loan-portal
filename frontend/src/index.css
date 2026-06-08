@@ -76,7 +76,7 @@
     @apply text-slate-800 dark:text-dark-100;
   }
   .input-base:focus {
-    @apply border-brand-500 ring-2 ring-brand-500/20 scale-[1.01] shadow-sm;
+    @apply border-brand-500 ring-2 ring-brand-500/20 -translate-y-[1px] shadow-sm;
   }
   .input-base.error {
     @apply border-red-400/70 focus:border-red-500 focus:ring-red-500/10;

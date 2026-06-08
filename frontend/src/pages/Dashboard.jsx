@@ -46,13 +46,13 @@ function SkeletonRow() {
     <tr>
       <td colSpan={7} className="p-0">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="flex items-center gap-4 px-6 py-4 border-b border-slate-100/50 dark:border-dark-800/40 last:border-0">
-            <div className="skeleton h-3 w-20" />
-            <div className="skeleton h-3 w-32 ml-6" />
-            <div className="skeleton h-3 w-24 ml-6" />
-            <div className="skeleton h-3 w-16 ml-6" />
-            <div className="skeleton h-5 w-16 rounded-full ml-6" />
-            <div className="skeleton h-5 w-20 rounded-full ml-auto" />
+          <div key={i} className="flex items-center gap-6 px-7 py-5 border-b border-slate-100/50 dark:border-dark-800/40 last:border-0">
+            <div className="skeleton h-3.5 w-24 rounded-md opacity-80" />
+            <div className="skeleton h-4 w-40 rounded-md opacity-90 ml-6" />
+            <div className="skeleton h-3 w-28 rounded-md opacity-80 ml-6" />
+            <div className="skeleton h-4 w-20 rounded-md opacity-90 ml-auto mr-12" />
+            <div className="skeleton h-6 w-16 rounded-full opacity-80" />
+            <div className="skeleton h-6 w-20 rounded-full ml-auto" />
           </div>
         ))}
       </td>
@@ -396,7 +396,7 @@ export default function Dashboard() {
 
         {/* Table */}
         <div className="glass-panel rounded-2xl border border-white/40 dark:border-white/[0.05] overflow-hidden shadow-glass hover:shadow-[0_24px_60px_-12px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_24px_60px_-12px_rgba(255,255,255,0.05)] transition-all duration-300">
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto custom-scrollbar pb-1">
             <table className="min-w-full divide-y divide-slate-100/60 dark:divide-dark-800/40 text-sm">
               <thead className="bg-slate-100/50 dark:bg-dark-900/60 backdrop-blur-md border-b border-slate-200/60 dark:border-white/10">
                 <tr>
@@ -549,13 +549,13 @@ export default function Dashboard() {
             <motion.div key="modal-bg"
               initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}
               onClick={() => setModalApp(null)}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50" />
+              className="fixed inset-0 bg-slate-900/30 dark:bg-black/60 backdrop-blur-md z-50" />
 
             <motion.div key="modal"
-              initial={{ opacity:0, scale:0.94, y:20 }}
+              initial={{ opacity:0, scale:0.95, y:16 }}
               animate={{ opacity:1, scale:1, y:0 }}
-              exit={{ opacity:0, scale:0.94, y:20 }}
-              transition={{ type:'spring', stiffness:340, damping:28 }}
+              exit={{ opacity:0, scale:0.95, y:16 }}
+              transition={{ ease:[0.16, 1, 0.3, 1], duration:0.4 }}
               className="fixed inset-0 m-auto w-full max-w-md h-fit z-50
                 glass-panel bg-white/95 dark:bg-dark-900/95
                 rounded-2xl border border-white/50 dark:border-white/[0.06]
@@ -659,7 +659,6 @@ export default function Dashboard() {
           </>
         )}
       </AnimatePresence>
-
     </div>
   );
 }
