@@ -11,10 +11,28 @@ import {
   Check, 
   ArrowLeft, 
   Sparkles,
-  Loader2
+  Loader2,
+  CheckCircle2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
+
+// Staggered variants for form fields
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.2
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 15 },
+  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
+};
 
 export default function ApplyLoan() {
   const { createApplication, loading } = useStore();
@@ -81,7 +99,6 @@ export default function ApplyLoan() {
       ...prev,
       [name]: value,
     }));
-    // Clear validation error when editing
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: '' }));
     }
@@ -111,7 +128,6 @@ export default function ApplyLoan() {
       }
     } catch (err) {
       console.error(err);
-      // Backend error toasts are handled in the Zustand store
     }
   };
 
@@ -137,32 +153,38 @@ export default function ApplyLoan() {
           >
             {/* Header */}
             <div className="flex flex-col gap-2 mb-8 text-center sm:text-left">
-              <div className="flex items-center justify-center sm:justify-start gap-2 text-brand-500 font-semibold text-sm uppercase tracking-wider">
-                <Sparkles className="w-4 h-4" />
-                <span>Quick Loan Application</span>
+              <div className="flex items-center justify-center sm:justify-start gap-2 text-brand-500 font-semibold text-sm uppercase tracking-wider mb-1">
+                <Sparkles className="w-4.5 h-4.5 animate-pulse text-glow" />
+                <span className="text-glow">Quick Loan Application</span>
               </div>
-              <h2 className="text-3xl font-extrabold font-sans tracking-tight bg-gradient-to-r from-slate-900 via-indigo-950 to-brand-600 dark:from-white dark:via-dark-100 dark:to-brand-400 bg-clip-text text-transparent">
+              <h2 className="text-4xl font-extrabold font-sans tracking-tight bg-gradient-to-r from-slate-900 via-indigo-950 to-brand-600 dark:from-white dark:via-dark-100 dark:to-brand-400 bg-clip-text text-transparent">
                 Apply for a Loan
               </h2>
-              <p className="text-slate-500 dark:text-dark-400 text-sm">
+              <p className="text-slate-500 dark:text-dark-400 text-sm mt-1">
                 Submit details below to initiate processing. Standard review takes less than 24 hours.
               </p>
             </div>
 
             {/* Form Card */}
-            <div className="glass-card rounded-2xl p-6 sm:p-8 border border-slate-200/50 dark:border-dark-800/40 relative overflow-hidden">
+            <div className="glass-panel rounded-3xl p-6 sm:p-8 border border-white/50 dark:border-white/[0.05] relative overflow-hidden shadow-premium">
               {/* Card top gradient indicator */}
-              <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-brand-500 via-indigo-500 to-indigo-600" />
+              <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-brand-500 via-indigo-500 to-indigo-600" />
               
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <motion.form 
+                variants={containerVariants}
+                initial="hidden"
+                animate="show"
+                onSubmit={handleSubmit} 
+                className="space-y-6 pt-2"
+              >
                 
                 {/* Applicant Name */}
-                <div className="space-y-2">
-                  <label htmlFor="applicant_name" className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-dark-400">
+                <motion.div variants={itemVariants} className="space-y-2 relative group">
+                  <label htmlFor="applicant_name" className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-dark-400 group-focus-within:text-brand-500 transition-colors">
                     Applicant Name
                   </label>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-dark-500">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-dark-500 group-focus-within:text-brand-500 transition-colors">
                       <User className="w-4.5 h-4.5" />
                     </div>
                     <input
@@ -172,28 +194,28 @@ export default function ApplyLoan() {
                       value={formData.applicant_name}
                       onChange={handleChange}
                       placeholder="e.g. Rajesh Kumar"
-                      className={`w-full pl-10 pr-4 py-3 rounded-xl bg-slate-100/50 dark:bg-dark-900/40 border text-sm transition-all outline-none focus:ring-2 focus:ring-brand-500/20 ${
+                      className={`w-full pl-10 pr-4 py-3.5 rounded-xl bg-white/50 dark:bg-dark-900/40 backdrop-blur-sm border text-sm font-medium transition-all outline-none focus:ring-4 focus:ring-brand-500/10 dark:focus:ring-brand-500/20 shadow-sm ${
                         errors.applicant_name
-                          ? 'border-red-500/50 focus:border-red-500/50 text-red-600 dark:text-red-400'
+                          ? 'border-red-500/50 focus:border-red-500 text-red-600 dark:text-red-400'
                           : 'border-slate-200/60 dark:border-dark-800/60 focus:border-brand-500'
                       }`}
                     />
                   </div>
                   {errors.applicant_name && (
-                    <p className="text-xs text-red-500 font-medium pl-1">{errors.applicant_name}</p>
+                    <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-xs text-red-500 font-bold pl-1">{errors.applicant_name}</motion.p>
                   )}
-                </div>
+                </motion.div>
 
                 {/* Mobile Number & Preferred Language (2 columns) */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   
                   {/* Mobile Number */}
-                  <div className="space-y-2">
-                    <label htmlFor="mobile_number" className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-dark-400">
+                  <motion.div variants={itemVariants} className="space-y-2 relative group">
+                    <label htmlFor="mobile_number" className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-dark-400 group-focus-within:text-brand-500 transition-colors">
                       Mobile Number
                     </label>
                     <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-dark-500">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-dark-500 group-focus-within:text-brand-500 transition-colors">
                         <Phone className="w-4.5 h-4.5" />
                       </div>
                       <input
@@ -204,25 +226,25 @@ export default function ApplyLoan() {
                         onChange={handleChange}
                         placeholder="e.g. 9876543210"
                         maxLength={10}
-                        className={`w-full pl-10 pr-4 py-3 rounded-xl bg-slate-100/50 dark:bg-dark-900/40 border text-sm transition-all outline-none focus:ring-2 focus:ring-brand-500/20 ${
+                        className={`w-full pl-10 pr-4 py-3.5 rounded-xl bg-white/50 dark:bg-dark-900/40 backdrop-blur-sm border text-sm font-mono font-bold transition-all outline-none focus:ring-4 focus:ring-brand-500/10 dark:focus:ring-brand-500/20 shadow-sm ${
                           errors.mobile_number
-                            ? 'border-red-500/50 focus:border-red-500/50 text-red-600 dark:text-red-400'
+                            ? 'border-red-500/50 focus:border-red-500 text-red-600 dark:text-red-400'
                             : 'border-slate-200/60 dark:border-dark-800/60 focus:border-brand-500'
                         }`}
                       />
                     </div>
                     {errors.mobile_number && (
-                      <p className="text-xs text-red-500 font-medium pl-1">{errors.mobile_number}</p>
+                      <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-xs text-red-500 font-bold pl-1">{errors.mobile_number}</motion.p>
                     )}
-                  </div>
+                  </motion.div>
 
                   {/* Preferred Language */}
-                  <div className="space-y-2">
-                    <label htmlFor="preferred_language" className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-dark-400">
+                  <motion.div variants={itemVariants} className="space-y-2 relative group">
+                    <label htmlFor="preferred_language" className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-dark-400 group-focus-within:text-brand-500 transition-colors">
                       Preferred Language
                     </label>
                     <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-dark-500">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-dark-500 group-focus-within:text-brand-500 transition-colors">
                         <Languages className="w-4.5 h-4.5" />
                       </div>
                       <select
@@ -230,9 +252,9 @@ export default function ApplyLoan() {
                         name="preferred_language"
                         value={formData.preferred_language}
                         onChange={handleChange}
-                        className={`w-full pl-10 pr-4 py-3 rounded-xl bg-slate-100/50 dark:bg-dark-900/40 border text-sm transition-all outline-none focus:ring-2 focus:ring-brand-500/20 appearance-none ${
+                        className={`w-full pl-10 pr-4 py-3.5 rounded-xl bg-white/50 dark:bg-dark-900/40 backdrop-blur-sm border text-sm font-semibold transition-all outline-none focus:ring-4 focus:ring-brand-500/10 dark:focus:ring-brand-500/20 appearance-none shadow-sm ${
                           errors.preferred_language
-                            ? 'border-red-500/50 focus:border-red-500/50 text-red-600 dark:text-red-400'
+                            ? 'border-red-500/50 focus:border-red-500 text-red-600 dark:text-red-400'
                             : 'border-slate-200/60 dark:border-dark-800/60 focus:border-brand-500'
                         }`}
                       >
@@ -252,18 +274,18 @@ export default function ApplyLoan() {
                       </div>
                     </div>
                     {errors.preferred_language && (
-                      <p className="text-xs text-red-500 font-medium pl-1">{errors.preferred_language}</p>
+                      <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-xs text-red-500 font-bold pl-1">{errors.preferred_language}</motion.p>
                     )}
-                  </div>
+                  </motion.div>
                 </div>
 
                 {/* Loan Amount */}
-                <div className="space-y-2">
-                  <label htmlFor="loan_amount" className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-dark-400">
+                <motion.div variants={itemVariants} className="space-y-2 relative group">
+                  <label htmlFor="loan_amount" className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-dark-400 group-focus-within:text-brand-500 transition-colors">
                     Loan Amount (₹)
                   </label>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-dark-500 font-semibold text-base">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 dark:text-dark-500 font-extrabold text-base group-focus-within:text-brand-500 transition-colors">
                       ₹
                     </div>
                     <input
@@ -273,25 +295,25 @@ export default function ApplyLoan() {
                       value={formData.loan_amount}
                       onChange={handleChange}
                       placeholder="e.g. 50000"
-                      className={`w-full pl-8 pr-4 py-3 rounded-xl bg-slate-100/50 dark:bg-dark-900/40 border text-sm transition-all outline-none focus:ring-2 focus:ring-brand-500/20 ${
+                      className={`w-full pl-9 pr-4 py-3.5 rounded-xl bg-white/50 dark:bg-dark-900/40 backdrop-blur-sm border text-sm font-bold transition-all outline-none focus:ring-4 focus:ring-brand-500/10 dark:focus:ring-brand-500/20 shadow-sm ${
                         errors.loan_amount
-                          ? 'border-red-500/50 focus:border-red-500/50 text-red-600 dark:text-red-400'
+                          ? 'border-red-500/50 focus:border-red-500 text-red-600 dark:text-red-400'
                           : 'border-slate-200/60 dark:border-dark-800/60 focus:border-brand-500'
                       }`}
                     />
                   </div>
                   {errors.loan_amount && (
-                    <p className="text-xs text-red-500 font-medium pl-1">{errors.loan_amount}</p>
+                    <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-xs text-red-500 font-bold pl-1">{errors.loan_amount}</motion.p>
                   )}
-                </div>
+                </motion.div>
 
                 {/* Loan Purpose */}
-                <div className="space-y-2">
-                  <label htmlFor="loan_purpose" className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-dark-400">
+                <motion.div variants={itemVariants} className="space-y-2 relative group">
+                  <label htmlFor="loan_purpose" className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-dark-400 group-focus-within:text-brand-500 transition-colors">
                     Loan Purpose / Description
                   </label>
                   <div className="relative">
-                    <div className="absolute top-3.5 left-3.5 pointer-events-none text-slate-400 dark:text-dark-500">
+                    <div className="absolute top-4 left-3.5 pointer-events-none text-slate-400 dark:text-dark-500 group-focus-within:text-brand-500 transition-colors">
                       <FileText className="w-4.5 h-4.5" />
                     </div>
                     <textarea
@@ -301,126 +323,149 @@ export default function ApplyLoan() {
                       onChange={handleChange}
                       rows={4}
                       placeholder="Please describe why you need this loan (e.g. Business expansion, medical emergency, educational fees)..."
-                      className={`w-full pl-10 pr-4 py-3 rounded-xl bg-slate-100/50 dark:bg-dark-900/40 border text-sm transition-all outline-none focus:ring-2 focus:ring-brand-500/20 resize-none ${
+                      className={`w-full pl-10 pr-4 py-3.5 rounded-xl bg-white/50 dark:bg-dark-900/40 backdrop-blur-sm border text-sm font-medium transition-all outline-none focus:ring-4 focus:ring-brand-500/10 dark:focus:ring-brand-500/20 resize-none shadow-sm ${
                         errors.loan_purpose
-                          ? 'border-red-500/50 focus:border-red-500/50 text-red-600 dark:text-red-400'
+                          ? 'border-red-500/50 focus:border-red-500 text-red-600 dark:text-red-400'
                           : 'border-slate-200/60 dark:border-dark-800/60 focus:border-brand-500'
                       }`}
                     />
                   </div>
                   {errors.loan_purpose && (
-                    <p className="text-xs text-red-500 font-medium pl-1">{errors.loan_purpose}</p>
+                    <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-xs text-red-500 font-bold pl-1">{errors.loan_purpose}</motion.p>
                   )}
-                </div>
+                </motion.div>
 
                 {/* Action Buttons */}
-                <div className="flex gap-4 pt-4">
-                  <button
+                <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4 pt-4">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     type="button"
                     onClick={() => navigate('/')}
-                    className="flex-1 px-4 py-3 rounded-xl border border-slate-200 dark:border-dark-800 hover:bg-slate-100/60 dark:hover:bg-dark-800/40 text-sm font-semibold transition-colors text-slate-700 dark:text-dark-300"
+                    className="flex-1 px-4 py-3.5 rounded-xl border border-slate-200 dark:border-dark-700 bg-white dark:bg-dark-800 hover:bg-slate-50 dark:hover:bg-dark-700 text-sm font-bold transition-colors text-slate-700 dark:text-dark-300 shadow-sm"
                   >
                     Cancel
-                  </button>
-                  <button
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     type="submit"
                     disabled={loading}
-                    className="flex-1 px-4 py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-sm shadow-premium flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+                    className="flex-1 px-4 py-3.5 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 hover:from-brand-500 hover:to-indigo-400 text-white font-bold text-sm shadow-glow-brand flex items-center justify-center gap-2 transition-all disabled:opacity-50"
                   >
                     {loading ? (
                       <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <Loader2 className="w-5 h-5 animate-spin" />
                         Submitting...
                       </>
                     ) : (
                       'Submit Application'
                     )}
-                  </button>
-                </div>
+                  </motion.button>
+                </motion.div>
 
-              </form>
+              </motion.form>
             </div>
           </motion.div>
         ) : (
           <motion.div
             key="success"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: -20 }}
             transition={{ type: 'spring', stiffness: 300, damping: 25 }}
             className="text-center py-10"
           >
             {/* Success Card */}
-            <div className="glass-card rounded-3xl p-8 sm:p-10 border border-slate-200/50 dark:border-dark-800/40 shadow-premium max-w-xl mx-auto relative overflow-hidden">
-              <div className="absolute top-0 inset-x-0 h-1.5 bg-emerald-500" />
+            <div className="glass-panel rounded-3xl p-8 sm:p-12 border border-white/50 dark:border-white/[0.05] shadow-premium max-w-xl mx-auto relative overflow-hidden group">
+              <div className="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-emerald-400 to-emerald-600" />
               
-              {/* Checkmark Animation */}
-              <div className="mx-auto flex items-center justify-center w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 mb-6 border-4 border-emerald-50/50 dark:border-emerald-500/10">
-                <Check className="w-8 h-8 stroke-[3]" />
-              </div>
+              <div className="absolute top-[-20%] right-[-20%] w-[50%] h-[50%] bg-emerald-500/10 blur-[80px] rounded-full pointer-events-none" />
 
-              <h2 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-emerald-600 to-indigo-600 dark:from-emerald-400 dark:to-indigo-400 bg-clip-text text-transparent mb-2">
+              {/* Checkmark Animation */}
+              <motion.div 
+                initial={{ scale: 0, rotate: -45 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.1 }}
+                className="mx-auto flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-emerald-100 to-emerald-50 dark:from-emerald-500/30 dark:to-emerald-500/10 text-emerald-600 dark:text-emerald-400 mb-8 border-4 border-white dark:border-dark-800 shadow-xl"
+              >
+                <CheckCircle2 className="w-10 h-10 stroke-[2.5]" />
+              </motion.div>
+
+              <motion.h2 
+                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+                className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-emerald-600 to-indigo-600 dark:from-emerald-400 dark:to-indigo-400 bg-clip-text text-transparent mb-3"
+              >
                 Application Received!
-              </h2>
-              <p className="text-slate-500 dark:text-dark-400 text-sm max-w-md mx-auto mb-8">
+              </motion.h2>
+              <motion.p 
+                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+                className="text-slate-500 dark:text-dark-400 text-sm font-medium max-w-md mx-auto mb-8"
+              >
                 Your loan application has been submitted successfully and is currently under review by our credit underwriting team.
-              </p>
+              </motion.p>
 
               {/* Application Details Summary */}
-              <div className="bg-slate-100/50 dark:bg-dark-900/40 border border-slate-200/30 dark:border-dark-800/30 rounded-2xl p-5 mb-8 text-left space-y-3">
-                <div className="flex justify-between items-center text-xs font-semibold border-b border-slate-200/40 dark:border-dark-850/40 pb-2">
-                  <span className="text-slate-400 dark:text-dark-500 uppercase">Field</span>
-                  <span className="text-slate-400 dark:text-dark-500 uppercase">Value</span>
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
+                className="bg-white/80 dark:bg-dark-900/80 backdrop-blur-md border border-slate-200/50 dark:border-dark-800/50 rounded-2xl p-6 mb-8 text-left space-y-4 shadow-sm"
+              >
+                <div className="flex justify-between items-center text-[10px] font-bold tracking-widest text-slate-400 dark:text-dark-500 uppercase border-b border-slate-200/50 dark:border-dark-800/50 pb-3">
+                  <span>Field</span>
+                  <span>Value</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-500 dark:text-dark-400">Applicant Name</span>
-                  <span className="font-semibold text-slate-800 dark:text-dark-100">{submittedApp.applicant_name}</span>
+                  <span className="text-slate-500 dark:text-dark-400 font-medium">Applicant Name</span>
+                  <span className="font-bold text-slate-800 dark:text-dark-100">{submittedApp.applicant_name}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-500 dark:text-dark-400">Loan Amount</span>
-                  <span className="font-semibold text-slate-800 dark:text-dark-100">₹{parseFloat(submittedApp.loan_amount).toLocaleString('en-IN')}</span>
+                  <span className="text-slate-500 dark:text-dark-400 font-medium">Loan Amount</span>
+                  <span className="font-bold text-slate-800 dark:text-dark-100">₹{parseFloat(submittedApp.loan_amount).toLocaleString('en-IN')}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-500 dark:text-dark-400">Language Preferred</span>
-                  <span className="font-semibold text-slate-800 dark:text-dark-100">{submittedApp.preferred_language}</span>
+                  <span className="text-slate-500 dark:text-dark-400 font-medium">Language Preferred</span>
+                  <span className="font-bold text-slate-800 dark:text-dark-100">{submittedApp.preferred_language}</span>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Reference ID Block */}
-              <div className="space-y-2 mb-10">
-                <span className="block text-xs font-semibold text-slate-400 dark:text-dark-500 uppercase tracking-widest">
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="space-y-2 mb-10">
+                <span className="block text-xs font-bold text-slate-400 dark:text-dark-500 uppercase tracking-widest">
                   Application Reference ID
                 </span>
-                <div className="flex items-center justify-between gap-3 p-3.5 bg-slate-100 dark:bg-dark-950 rounded-xl border border-slate-200 dark:border-dark-800">
-                  <code className="text-xs font-mono font-bold select-all break-all text-slate-800 dark:text-brand-300">
+                <div className="flex items-center justify-between gap-3 p-4 bg-slate-100/50 dark:bg-dark-950/50 rounded-xl border border-slate-200/50 dark:border-dark-800/50 group">
+                  <code className="text-xs font-mono font-bold select-all break-all text-slate-800 dark:text-brand-300 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
                     {submittedApp.id}
                   </code>
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
                     onClick={copyToClipboard}
-                    className="p-2 rounded-lg bg-white dark:bg-dark-900 border border-slate-200/50 dark:border-dark-850 hover:bg-slate-50 dark:hover:bg-dark-800 text-slate-500 dark:text-dark-400 transition-colors shadow-sm"
+                    className="p-2.5 rounded-xl bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 hover:border-brand-500 dark:hover:border-brand-500 text-slate-500 dark:text-dark-400 transition-all shadow-sm"
                     title="Copy Application ID"
                   >
                     {isCopied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
-                  </button>
+                  </motion.button>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Finish Actions */}
-              <div className="flex flex-col sm:flex-row gap-4">
-                <button
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }} className="flex flex-col sm:flex-row gap-4">
+                <motion.button
+                  whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
                   onClick={() => setSubmittedApp(null)}
-                  className="flex-1 px-5 py-3 rounded-xl border border-slate-200 dark:border-dark-800 hover:bg-slate-100/60 dark:hover:bg-dark-800/40 text-sm font-semibold transition-colors text-slate-600 dark:text-dark-300"
+                  className="flex-1 px-5 py-4 rounded-xl border border-slate-200 dark:border-dark-700 bg-white dark:bg-dark-800 hover:bg-slate-50 dark:hover:bg-dark-700 text-sm font-bold transition-colors text-slate-600 dark:text-dark-300 shadow-sm"
                 >
                   Apply for New Loan
-                </button>
-                <button
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
                   onClick={() => navigate('/')}
-                  className="flex-1 px-5 py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-sm shadow-premium flex items-center justify-center gap-2 transition-colors"
+                  className="flex-1 px-5 py-4 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 hover:from-brand-500 hover:to-indigo-400 text-white font-bold text-sm shadow-glow-brand flex items-center justify-center gap-2 transition-all"
                 >
                   <ArrowLeft className="w-4.5 h-4.5" />
                   Back to Dashboard
-                </button>
-              </div>
+                </motion.button>
+              </motion.div>
 
             </div>
           </motion.div>

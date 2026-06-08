@@ -33,12 +33,53 @@ import {
   Pie, 
   Cell 
 } from 'recharts';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useSpring, useTransform } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 
 // Colors for the Pie Chart
 const COLORS = ['#6366f1', '#f59e0b', '#10b981', '#3b82f6', '#ec4899'];
+
+// Animated Counter Component
+const AnimatedCounter = ({ value, prefix = "", suffix = "" }) => {
+  const springValue = useSpring(0, { bounce: 0, duration: 1500 });
+  const [displayValue, setDisplayValue] = useState(0);
+
+  useEffect(() => {
+    springValue.set(value);
+  }, [value, springValue]);
+
+  useEffect(() => {
+    return springValue.onChange((latest) => {
+      setDisplayValue(Math.floor(latest));
+    });
+  }, [springValue]);
+
+  return (
+    <span>
+      {prefix}
+      {displayValue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+      {suffix}
+    </span>
+  );
+};
+
+// Framer Motion Variants
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
+};
 
 export default function Dashboard() {
   const { 
@@ -123,57 +164,38 @@ export default function Dashboard() {
       case 'rejected':
         return <XCircle className="w-3.5 h-3.5 mr-1.5" />;
       default:
-        return <Clock className="w-3.5 h-3.5 mr-1.5 animation-pulse" />;
+        return <Clock className="w-3.5 h-3.5 mr-1.5 animate-pulse" />;
     }
   };
 
-  // Language badge color mapping (Bonus Feature: Language-based color badges)
+  // Language badge color mapping
   const getLanguageBadgeColor = (lang) => {
     switch (lang) {
-      case 'Hindi':
-        return 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20';
-      case 'Tamil':
-        return 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20';
-      case 'Telugu':
-        return 'bg-pink-500/10 text-pink-600 dark:text-pink-400 border border-pink-500/20';
-      case 'Marathi':
-        return 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20';
-      default: // English
-        return 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20';
+      case 'Hindi': return 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20';
+      case 'Tamil': return 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20';
+      case 'Telugu': return 'bg-pink-500/10 text-pink-600 dark:text-pink-400 border border-pink-500/20';
+      case 'Marathi': return 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20';
+      default: return 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20';
     }
   };
 
-  // Handle status update change from the modal
   const handleStatusUpdate = async (id, status) => {
     await updateStatus(id, status);
     setSelectedAppForStatus(null);
   };
 
-  // Export to CSV helper (Bonus Feature)
   const exportToCSV = () => {
     if (applications.length === 0) {
       toast.error('No applications available to export.');
       return;
     }
-    
-    // Header definition
     const headers = ['Application ID', 'Applicant Name', 'Mobile Number', 'Loan Amount (INR)', 'Loan Purpose', 'Language', 'Status', 'Applied At'];
-    
-    // Map applications array to CSV rows
     const rows = applications.map(app => [
-      app.id,
-      app.applicant_name,
-      app.mobile_number,
-      app.loan_amount,
-      `"${app.loan_purpose.replace(/"/g, '""')}"`,
-      app.preferred_language,
-      app.status,
+      app.id, app.applicant_name, app.mobile_number, app.loan_amount,
+      `"${app.loan_purpose.replace(/"/g, '""')}"`, app.preferred_language, app.status,
       new Date(app.created_at).toLocaleString('en-IN')
     ]);
-
     const csvContent = [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
-    
-    // Create download link element
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -182,129 +204,143 @@ export default function Dashboard() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
     toast.success('CSV Export downloaded successfully');
   };
 
-  // Chart Details Helpers
   const chartData = summary.recentApplications?.slice().reverse().map(app => ({
     date: new Date(app.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
     amount: parseFloat(app.loan_amount)
   })) || [];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pb-10">
       
       {/* Header and Welcome */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <motion.div 
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+      >
         <div>
-          <div className="flex items-center gap-2 text-brand-500 dark:text-brand-400 font-semibold text-xs uppercase tracking-wider">
+          <div className="flex items-center gap-2 text-brand-500 dark:text-brand-400 font-semibold text-xs uppercase tracking-wider mb-1">
             <Sparkles className="w-4.5 h-4.5 animate-pulse" />
-            <span>Operational Center</span>
+            <span className="text-glow">Operational Center</span>
           </div>
-          <h2 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-slate-900 via-indigo-950 to-brand-600 dark:from-white dark:via-dark-100 dark:to-brand-400 bg-clip-text text-transparent">
+          <h2 className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-slate-900 via-indigo-950 to-brand-600 dark:from-white dark:via-dark-100 dark:to-brand-400 bg-clip-text text-transparent">
             Overview Analytics
           </h2>
-          <p className="text-slate-500 dark:text-dark-400 text-sm">
+          <p className="text-slate-500 dark:text-dark-400 text-sm mt-1">
             Monitor incoming loan submissions, approve requests, and evaluate portfolio trends.
           </p>
         </div>
 
         {/* Global Toolbar */}
         <div className="flex items-center gap-3">
-          <button
+          <motion.button
+            whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
             onClick={handleRefresh}
-            className="p-2.5 rounded-xl border border-slate-200 dark:border-dark-800 bg-white dark:bg-dark-900 hover:bg-slate-50 dark:hover:bg-dark-800 transition-colors shadow-sm text-slate-500 dark:text-dark-400"
+            className="p-2.5 rounded-xl border border-slate-200/50 dark:border-dark-800/50 glass-card hover:bg-white dark:hover:bg-dark-900 transition-colors shadow-sm text-slate-500 dark:text-dark-400"
             title="Refresh Metrics"
           >
             <RefreshCw className="w-4.5 h-4.5" />
-          </button>
+          </motion.button>
           
-          <button
+          <motion.button
+            whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
             onClick={exportToCSV}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-dark-800 bg-white dark:bg-dark-900 hover:bg-slate-50 dark:hover:bg-dark-800 transition-colors shadow-sm text-sm font-semibold text-slate-700 dark:text-dark-300"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200/50 dark:border-dark-800/50 glass-card hover:bg-white dark:hover:bg-dark-900 transition-colors shadow-sm text-sm font-semibold text-slate-700 dark:text-dark-300"
           >
             <Download className="w-4 h-4" />
             Export CSV
-          </button>
+          </motion.button>
 
-          <button
+          <motion.button
+            whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
             onClick={() => navigate('/apply')}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white shadow-premium text-sm font-semibold transition-colors"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 hover:from-brand-500 hover:to-indigo-400 text-white shadow-glow-brand text-sm font-semibold transition-all"
           >
             <Plus className="w-4.5 h-4.5" />
             New Application
-          </button>
+          </motion.button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Stats Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+      >
         
         {/* Total Applications Card */}
-        <div className="glass-card rounded-2xl p-5 border border-slate-200/50 dark:border-dark-800/40 relative overflow-hidden group hover:scale-[1.02] transition-all duration-300">
-          <div className="absolute top-0 right-0 p-3 opacity-10 dark:opacity-20 text-brand-500">
+        <motion.div variants={itemVariants} whileHover={{ y: -5 }} className="glass-panel rounded-2xl p-6 border border-white/40 dark:border-white/[0.05] relative overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-br from-brand-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="absolute top-0 right-0 p-4 opacity-10 dark:opacity-20 text-brand-500 transform group-hover:scale-110 transition-transform duration-500">
             <Layers className="w-16 h-16" />
           </div>
-          <span className="text-xs font-semibold text-slate-400 dark:text-dark-500 uppercase tracking-widest block">Total Applications</span>
-          <div className="flex items-baseline gap-2 mt-2">
-            <span className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-              {summary.totalApplications}
+          <span className="text-xs font-semibold text-slate-400 dark:text-dark-500 uppercase tracking-widest block relative z-10">Total Applications</span>
+          <div className="flex items-baseline gap-2 mt-2 relative z-10">
+            <span className="text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+              <AnimatedCounter value={summary.totalApplications || 0} />
             </span>
           </div>
-          <div className="mt-4 flex items-center text-xs text-brand-500 font-semibold gap-1">
+          <div className="mt-4 flex items-center text-xs text-brand-500 font-semibold gap-1 relative z-10">
             <Activity className="w-3.5 h-3.5" />
             <span>Active underwriting pipeline</span>
           </div>
-        </div>
+        </motion.div>
 
         {/* Total Loan Amount Card */}
-        <div className="glass-card rounded-2xl p-5 border border-slate-200/50 dark:border-dark-800/40 relative overflow-hidden group hover:scale-[1.02] transition-all duration-300">
-          <div className="absolute top-0 right-0 p-3 opacity-10 dark:opacity-20 text-indigo-500">
+        <motion.div variants={itemVariants} whileHover={{ y: -5 }} className="glass-panel rounded-2xl p-6 border border-white/40 dark:border-white/[0.05] relative overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="absolute top-0 right-0 p-4 opacity-10 dark:opacity-20 text-indigo-500 transform group-hover:scale-110 transition-transform duration-500">
             <TrendingUp className="w-16 h-16" />
           </div>
-          <span className="text-xs font-semibold text-slate-400 dark:text-dark-500 uppercase tracking-widest block">Requested Amount</span>
-          <div className="flex items-baseline gap-1 mt-2">
-            <span className="text-xs font-extrabold text-indigo-500 select-none">₹</span>
-            <span className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-              {summary.totalAmount?.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+          <span className="text-xs font-semibold text-slate-400 dark:text-dark-500 uppercase tracking-widest block relative z-10">Requested Amount</span>
+          <div className="flex items-baseline gap-1 mt-2 relative z-10">
+            <span className="text-sm font-extrabold text-indigo-500 select-none">₹</span>
+            <span className="text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+              <AnimatedCounter value={summary.totalAmount || 0} />
             </span>
           </div>
-          <div className="mt-4 flex items-center text-xs text-indigo-500 font-semibold gap-1">
-            <span>Average: ₹{summary.totalApplications > 0 ? Math.round(summary.totalAmount / summary.totalApplications).toLocaleString('en-IN') : 0}</span>
+          <div className="mt-4 flex items-center text-xs text-indigo-500 font-semibold gap-1 relative z-10">
+            <span>Average: ₹<AnimatedCounter value={summary.totalApplications > 0 ? Math.round((summary.totalAmount||0) / summary.totalApplications) : 0} /></span>
           </div>
-        </div>
+        </motion.div>
 
         {/* Approved Capital Card */}
-        <div className="glass-card rounded-2xl p-5 border border-slate-200/50 dark:border-dark-800/40 relative overflow-hidden group hover:scale-[1.02] transition-all duration-300">
-          <div className="absolute top-0 right-0 p-3 opacity-10 dark:opacity-20 text-emerald-500">
+        <motion.div variants={itemVariants} whileHover={{ y: -5 }} className="glass-panel rounded-2xl p-6 border border-white/40 dark:border-white/[0.05] relative overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="absolute top-0 right-0 p-4 opacity-10 dark:opacity-20 text-emerald-500 transform group-hover:scale-110 transition-transform duration-500">
             <UserCheck className="w-16 h-16" />
           </div>
-          <span className="text-xs font-semibold text-slate-400 dark:text-dark-500 uppercase tracking-widest block">Approved Volume</span>
-          <div className="flex items-baseline gap-1 mt-2">
-            <span className="text-xs font-extrabold text-emerald-500 select-none">₹</span>
-            <span className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-              {summary.approvedAmount?.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+          <span className="text-xs font-semibold text-slate-400 dark:text-dark-500 uppercase tracking-widest block relative z-10">Approved Volume</span>
+          <div className="flex items-baseline gap-1 mt-2 relative z-10">
+            <span className="text-sm font-extrabold text-emerald-500 select-none">₹</span>
+            <span className="text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+              <AnimatedCounter value={summary.approvedAmount || 0} />
             </span>
           </div>
-          <div className="mt-4 flex items-center text-xs text-emerald-500 font-semibold gap-1">
+          <div className="mt-4 flex items-center text-xs text-emerald-500 font-semibold gap-1 relative z-10">
             <CheckCircle2 className="w-3.5 h-3.5" />
-            <span>{summary.statusCounts?.approved || 0} applications approved</span>
+            <span><AnimatedCounter value={summary.statusCounts?.approved || 0} /> applications approved</span>
           </div>
-        </div>
+        </motion.div>
 
         {/* Status Counts Breakdown Card */}
-        <div className="glass-card rounded-2xl p-5 border border-slate-200/50 dark:border-dark-800/40 relative overflow-hidden group hover:scale-[1.02] transition-all duration-300">
-          <div className="absolute top-0 right-0 p-3 opacity-10 dark:opacity-20 text-amber-500">
+        <motion.div variants={itemVariants} whileHover={{ y: -5 }} className="glass-panel rounded-2xl p-6 border border-white/40 dark:border-white/[0.05] relative overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="absolute top-0 right-0 p-4 opacity-10 dark:opacity-20 text-amber-500 transform group-hover:scale-110 transition-transform duration-500">
             <Clock className="w-16 h-16" />
           </div>
-          <span className="text-xs font-semibold text-slate-400 dark:text-dark-500 uppercase tracking-widest block">Pending Reviews</span>
-          <div className="flex items-baseline gap-2 mt-2">
-            <span className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-              {summary.statusCounts?.pending || 0}
+          <span className="text-xs font-semibold text-slate-400 dark:text-dark-500 uppercase tracking-widest block relative z-10">Pending Reviews</span>
+          <div className="flex items-baseline gap-2 mt-2 relative z-10">
+            <span className="text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+              <AnimatedCounter value={summary.statusCounts?.pending || 0} />
             </span>
           </div>
-          <div className="mt-4 flex items-center text-xs justify-between gap-1">
+          <div className="mt-4 flex items-center text-xs justify-between gap-1 relative z-10">
             <span className="text-amber-500 font-semibold flex items-center">
               <Clock className="w-3.5 h-3.5 mr-1" />
               {summary.statusCounts?.pending || 0} Pending
@@ -314,45 +350,54 @@ export default function Dashboard() {
               {summary.statusCounts?.rejected || 0} Rejected
             </span>
           </div>
-        </div>
+        </motion.div>
 
-      </div>
+      </motion.div>
 
       {/* Analytics Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+        className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+      >
         
-        {/* Main Line Area Chart (Recharts) */}
-        <div className="lg:col-span-2 glass-card rounded-2xl p-6 border border-slate-200/50 dark:border-dark-800/40 flex flex-col h-80">
-          <div className="mb-4">
-            <h3 className="text-base font-bold text-slate-800 dark:text-dark-100 flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-brand-500" />
-              Capital Demand Curve
-            </h3>
-            <p className="text-xs text-slate-400 dark:text-dark-500">Amount requested in recent loan applications</p>
+        {/* Main Line Area Chart */}
+        <motion.div variants={itemVariants} className="lg:col-span-2 glass-panel rounded-2xl p-6 border border-white/40 dark:border-white/[0.05] flex flex-col h-80 group">
+          <div className="mb-4 flex justify-between items-center">
+            <div>
+              <h3 className="text-base font-bold text-slate-800 dark:text-dark-100 flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-brand-500" />
+                Capital Demand Curve
+              </h3>
+              <p className="text-xs text-slate-400 dark:text-dark-500 mt-1">Amount requested in recent loan applications</p>
+            </div>
           </div>
-          <div className="flex-1 w-full text-xs font-semibold">
+          <div className="flex-1 w-full text-xs font-semibold transition-transform duration-500 group-hover:scale-[1.01]">
             {chartData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.2}/>
-                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0.0}/>
                     </linearGradient>
                   </defs>
-                  <XAxis dataKey="date" stroke="#6b7280" opacity={0.5} tickLine={false} />
-                  <YAxis stroke="#6b7280" opacity={0.5} tickLine={false} />
+                  <XAxis dataKey="date" stroke="#6b7280" opacity={0.5} tickLine={false} axisLine={false} />
+                  <YAxis stroke="#6b7280" opacity={0.5} tickLine={false} axisLine={false} />
                   <Tooltip 
+                    cursor={{ stroke: '#6366f1', strokeWidth: 1, strokeDasharray: '4 4' }}
                     contentStyle={{ 
-                      background: 'rgba(17, 24, 39, 0.9)', 
-                      border: 'none', 
+                      background: 'rgba(17, 24, 39, 0.8)', 
+                      backdropFilter: 'blur(12px)',
+                      border: '1px solid rgba(255,255,255,0.1)', 
                       borderRadius: '12px',
                       color: '#fff',
-                      boxShadow: '0 10px 25px rgba(0,0,0,0.1)'
+                      boxShadow: '0 20px 40px rgba(0,0,0,0.2)'
                     }} 
                     formatter={(value) => [`₹${value.toLocaleString('en-IN')}`, 'Amount']}
                   />
-                  <Area type="monotone" dataKey="amount" stroke="#6366f1" strokeWidth={2.5} fillOpacity={1} fill="url(#colorAmount)" />
+                  <Area type="monotone" dataKey="amount" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorAmount)" activeDot={{ r: 6, fill: '#6366f1', stroke: '#fff', strokeWidth: 2 }} />
                 </AreaChart>
               </ResponsiveContainer>
             ) : (
@@ -361,18 +406,18 @@ export default function Dashboard() {
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
 
-        {/* Language Preference Pie Chart (Recharts) */}
-        <div className="glass-card rounded-2xl p-6 border border-slate-200/50 dark:border-dark-800/40 flex flex-col h-80">
+        {/* Language Preference Pie Chart */}
+        <motion.div variants={itemVariants} className="glass-panel rounded-2xl p-6 border border-white/40 dark:border-white/[0.05] flex flex-col h-80 group">
           <div>
             <h3 className="text-base font-bold text-slate-800 dark:text-dark-100 flex items-center gap-2">
               <Languages className="w-4.5 h-4.5 text-brand-500" />
               Language Demographics
             </h3>
-            <p className="text-xs text-slate-400 dark:text-dark-500">Borrower preferred communication channels</p>
+            <p className="text-xs text-slate-400 dark:text-dark-500 mt-1">Borrower preferred communication channels</p>
           </div>
-          <div className="flex-1 flex items-center justify-center text-xs font-semibold relative">
+          <div className="flex-1 flex items-center justify-center text-xs font-semibold relative transition-transform duration-500 group-hover:scale-[1.03]">
             {summary.languageDistribution?.length > 0 ? (
               <div className="w-full h-full flex flex-col items-center justify-center">
                 <div className="w-full h-[150px]">
@@ -382,10 +427,11 @@ export default function Dashboard() {
                         data={summary.languageDistribution}
                         cx="50%"
                         cy="50%"
-                        innerRadius={45}
-                        outerRadius={65}
-                        paddingAngle={5}
+                        innerRadius={50}
+                        outerRadius={70}
+                        paddingAngle={6}
                         dataKey="value"
+                        stroke="none"
                       >
                         {summary.languageDistribution.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -393,9 +439,10 @@ export default function Dashboard() {
                       </Pie>
                       <Tooltip 
                         contentStyle={{ 
-                          background: 'rgba(17, 24, 39, 0.9)', 
-                          border: 'none', 
-                          borderRadius: '8px',
+                          background: 'rgba(17, 24, 39, 0.8)', 
+                          backdropFilter: 'blur(12px)',
+                          border: '1px solid rgba(255,255,255,0.1)', 
+                          borderRadius: '12px',
                           color: '#fff' 
                         }} 
                       />
@@ -403,11 +450,11 @@ export default function Dashboard() {
                   </ResponsiveContainer>
                 </div>
                 {/* Custom Legends */}
-                <div className="grid grid-cols-3 gap-2 mt-2 w-full text-[10px]">
+                <div className="grid grid-cols-3 gap-y-3 gap-x-1 mt-4 w-full text-[10px]">
                   {summary.languageDistribution.map((item, index) => (
                     <div key={item.name} className="flex items-center gap-1.5 justify-center">
-                      <span className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
-                      <span className="truncate text-slate-500 dark:text-dark-400 font-medium">{item.name} ({item.value})</span>
+                      <span className="w-2.5 h-2.5 rounded-full shadow-sm" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
+                      <span className="truncate text-slate-600 dark:text-dark-300 font-semibold">{item.name} ({item.value})</span>
                     </div>
                   ))}
                 </div>
@@ -416,15 +463,20 @@ export default function Dashboard() {
               <div className="text-slate-400">No demographic data available.</div>
             )}
           </div>
-        </div>
+        </motion.div>
 
-      </div>
+      </motion.div>
 
       {/* Applications List Table Section */}
-      <div className="space-y-4">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="space-y-4"
+      >
         
         {/* Table Filters header */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 glass-card rounded-2xl border border-slate-200/50 dark:border-dark-800/40">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 glass-panel rounded-2xl border border-white/40 dark:border-white/[0.05]">
           
           {/* Search bar */}
           <div className="relative w-full sm:w-80">
@@ -434,7 +486,7 @@ export default function Dashboard() {
               placeholder="Search by applicant or mobile..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-dark-800/60 bg-slate-50/50 dark:bg-dark-950/20 text-sm outline-none focus:border-brand-500 dark:focus:border-brand-500 transition-colors"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200/50 dark:border-dark-800/50 bg-white/50 dark:bg-dark-900/50 backdrop-blur-sm text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:focus:border-brand-500 transition-all shadow-sm"
             />
           </div>
 
@@ -452,7 +504,7 @@ export default function Dashboard() {
                   setStatusFilter(e.target.value);
                   setCurrentPage(1); // reset to page 1
                 }}
-                className="w-full pl-4 pr-10 py-2.5 rounded-xl border border-slate-200 dark:border-dark-800/60 bg-slate-50/50 dark:bg-dark-950/20 text-sm outline-none focus:border-brand-500 appearance-none"
+                className="w-full pl-4 pr-10 py-2.5 rounded-xl border border-slate-200/50 dark:border-dark-800/50 bg-white/50 dark:bg-dark-900/50 backdrop-blur-sm text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 appearance-none shadow-sm font-medium"
               >
                 <option value="all">All Applications</option>
                 <option value="pending">Pending Review</option>
@@ -470,63 +522,74 @@ export default function Dashboard() {
         </div>
 
         {/* Table list */}
-        <div className="glass-card rounded-2xl border border-slate-200/50 dark:border-dark-800/40 overflow-hidden">
+        <div className="glass-panel rounded-2xl border border-white/40 dark:border-white/[0.05] overflow-hidden shadow-glass relative">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-slate-200/50 dark:divide-dark-800/40">
-              <thead className="bg-slate-50/50 dark:bg-dark-900/30">
+              <thead className="bg-slate-100/50 dark:bg-dark-900/50 backdrop-blur-md">
                 <tr>
-                  <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-dark-500">ID / Date</th>
-                  <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-dark-500">Applicant</th>
-                  <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-dark-500">Mobile</th>
-                  <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-dark-500">Amount (₹)</th>
-                  <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-dark-500">Language</th>
-                  <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-dark-500">Status</th>
-                  <th className="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-dark-500">Actions</th>
+                  <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-dark-400">ID / Date</th>
+                  <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-dark-400">Applicant</th>
+                  <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-dark-400">Mobile</th>
+                  <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-dark-400">Amount (₹)</th>
+                  <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-dark-400">Language</th>
+                  <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-dark-400">Status</th>
+                  <th className="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-dark-400">Actions</th>
                 </tr>
               </thead>
               
-              <tbody className="divide-y divide-slate-200/50 dark:divide-dark-800/40 text-sm">
-                <AnimatePresence mode="popLayout">
+              <tbody className="divide-y divide-slate-100/50 dark:divide-dark-800/40 text-sm bg-white/20 dark:bg-dark-950/20">
+                <AnimatePresence mode="wait">
                   {loading ? (
                     // Loading skeletons
-                    Array.from({ length: 5 }).map((_, idx) => (
-                      <tr key={`skeleton-${idx}`}>
-                        <td className="px-6 py-4"><div className="h-4 bg-slate-200 dark:bg-dark-800 rounded animate-pulse w-24"></div></td>
-                        <td className="px-6 py-4"><div className="h-4 bg-slate-200 dark:bg-dark-800 rounded animate-pulse w-32"></div></td>
-                        <td className="px-6 py-4"><div className="h-4 bg-slate-200 dark:bg-dark-800 rounded animate-pulse w-20"></div></td>
-                        <td className="px-6 py-4"><div className="h-4 bg-slate-200 dark:bg-dark-800 rounded animate-pulse w-20"></div></td>
-                        <td className="px-6 py-4"><div className="h-4 bg-slate-200 dark:bg-dark-800 rounded animate-pulse w-16"></div></td>
-                        <td className="px-6 py-4"><div className="h-6 bg-slate-200 dark:bg-dark-800 rounded animate-pulse w-20"></div></td>
-                        <td className="px-6 py-4 text-right"><div className="h-8 bg-slate-200 dark:bg-dark-800 rounded animate-pulse w-16 ml-auto"></div></td>
-                      </tr>
-                    ))
+                    <motion.tr
+                      key="loading"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                    >
+                      <td colSpan={7} className="p-0">
+                        {Array.from({ length: 5 }).map((_, idx) => (
+                          <div key={`skeleton-${idx}`} className="flex px-6 py-4 items-center gap-4 w-full border-b border-slate-100 dark:border-dark-800 last:border-0">
+                            <div className="h-4 bg-slate-200/50 dark:bg-dark-800/50 rounded animate-pulse w-24"></div>
+                            <div className="h-4 bg-slate-200/50 dark:bg-dark-800/50 rounded animate-pulse w-32 ml-10"></div>
+                            <div className="h-4 bg-slate-200/50 dark:bg-dark-800/50 rounded animate-pulse w-20 ml-10"></div>
+                            <div className="h-4 bg-slate-200/50 dark:bg-dark-800/50 rounded animate-pulse w-20 ml-auto"></div>
+                          </div>
+                        ))}
+                      </td>
+                    </motion.tr>
                   ) : applications.length === 0 ? (
                     // Empty state
-                    <tr>
-                      <td colSpan={7} className="px-6 py-12 text-center text-slate-400 dark:text-dark-500">
+                    <motion.tr
+                      key="empty"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                    >
+                      <td colSpan={7} className="px-6 py-16 text-center text-slate-400 dark:text-dark-500">
                         <div className="flex flex-col items-center justify-center gap-3">
                           <Layers className="w-10 h-10 stroke-[1.5] text-slate-300 dark:text-dark-700" />
                           <p className="font-semibold text-sm">No loan applications found</p>
                           <p className="text-xs text-slate-400 dark:text-dark-500 max-w-xs">Adjust your search/filters or submit a new application to see data here.</p>
                         </div>
                       </td>
-                    </tr>
+                    </motion.tr>
                   ) : (
                     // Table Rows
-                    applications.map((app) => (
+                    applications.map((app, i) => (
                       <motion.tr
                         key={app.id}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0 }}
-                        layout
-                        className="hover:bg-slate-50/50 dark:hover:bg-dark-900/10 transition-colors"
+                        transition={{ delay: i * 0.05 }}
+                        className="hover:bg-white/60 dark:hover:bg-dark-800/40 transition-colors group cursor-pointer"
                       >
                         {/* ID and Date */}
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex flex-col gap-0.5">
                             <div className="flex items-center gap-1.5">
-                              <code className="text-[11px] font-semibold font-mono text-slate-500 dark:text-dark-400 select-all">
+                              <code className="text-[11px] font-semibold font-mono text-slate-500 dark:text-dark-400 select-all group-hover:text-brand-500 transition-colors">
                                 {app.id.substring(0, 8)}...
                               </code>
                               <button
@@ -582,7 +645,7 @@ export default function Dashboard() {
 
                         {/* Status badge */}
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${getStatusBadge(app.status)}`}>
+                          <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold ${getStatusBadge(app.status)} shadow-sm`}>
                             {getStatusIcon(app.status)}
                             <span className="capitalize">{app.status}</span>
                           </span>
@@ -590,13 +653,15 @@ export default function Dashboard() {
 
                         {/* Action Status Update Trigger */}
                         <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-semibold">
-                          <button
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
                             onClick={() => setSelectedAppForStatus(app)}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-dark-800 hover:bg-slate-100 dark:hover:bg-dark-800 text-slate-600 dark:text-dark-300 transition-colors shadow-sm"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-dark-700 bg-white dark:bg-dark-800 hover:bg-slate-50 dark:hover:bg-dark-700 text-slate-600 dark:text-dark-200 transition-colors shadow-sm"
                           >
                             <ArrowRightLeft className="w-3.5 h-3.5" />
-                            Update Status
-                          </button>
+                            Update
+                          </motion.button>
                         </td>
                       </motion.tr>
                     ))
@@ -606,32 +671,36 @@ export default function Dashboard() {
             </table>
           </div>
 
-          {/* Table Pagination footer (Bonus Feature) */}
+          {/* Table Pagination footer */}
           {pagination.pages > 1 && (
-            <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200/50 dark:border-dark-800/40 bg-slate-50/50 dark:bg-dark-900/30 text-xs font-semibold">
+            <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200/50 dark:border-dark-800/40 bg-slate-50/50 dark:bg-dark-900/50 text-xs font-semibold backdrop-blur-md">
               <span className="text-slate-500 dark:text-dark-400">
                 Page {pagination.page} of {pagination.pages} ({pagination.total} entries)
               </span>
               <div className="flex gap-2">
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   disabled={currentPage <= 1 || loading}
                   onClick={() => setCurrentPage(currentPage - 1)}
-                  className="p-1.5 rounded-lg border border-slate-200 dark:border-dark-800 bg-white dark:bg-dark-950 text-slate-600 dark:text-dark-300 disabled:opacity-40 transition-opacity hover:bg-slate-50 dark:hover:bg-dark-800"
+                  className="p-1.5 rounded-lg border border-slate-200 dark:border-dark-700 bg-white dark:bg-dark-800 text-slate-600 dark:text-dark-300 disabled:opacity-40 transition-opacity shadow-sm"
                 >
                   <ChevronLeft className="w-4 h-4" />
-                </button>
-                <button
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   disabled={currentPage >= pagination.pages || loading}
                   onClick={() => setCurrentPage(currentPage + 1)}
-                  className="p-1.5 rounded-lg border border-slate-200 dark:border-dark-800 bg-white dark:bg-dark-950 text-slate-600 dark:text-dark-300 disabled:opacity-40 transition-opacity hover:bg-slate-50 dark:hover:bg-dark-800"
+                  className="p-1.5 rounded-lg border border-slate-200 dark:border-dark-700 bg-white dark:bg-dark-800 text-slate-600 dark:text-dark-300 disabled:opacity-40 transition-opacity shadow-sm"
                 >
                   <ChevronRight className="w-4 h-4" />
-                </button>
+                </motion.button>
               </div>
             </div>
           )}
         </div>
-      </div>
+      </motion.div>
 
       {/* Status Update Modal (Overlay) */}
       <AnimatePresence>
@@ -640,10 +709,10 @@ export default function Dashboard() {
             {/* Modal Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
-              animate={{ opacity: 0.5 }}
+              animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setSelectedAppForStatus(null)}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+              className="fixed inset-0 bg-slate-900/40 dark:bg-black/60 backdrop-blur-sm z-50"
             />
             {/* Modal Content */}
             <motion.div
@@ -651,24 +720,27 @@ export default function Dashboard() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
               transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-              className="fixed inset-0 m-auto w-full max-w-md h-fit glass-card bg-white dark:bg-dark-900 p-6 rounded-2xl border border-slate-200 dark:border-dark-800 shadow-2xl z-50 overflow-hidden"
+              className="fixed inset-0 m-auto w-full max-w-md h-fit glass-panel bg-white/90 dark:bg-dark-900/90 p-6 rounded-2xl border border-white/50 dark:border-white/[0.05] shadow-2xl z-50 overflow-hidden"
             >
               <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-brand-600 to-indigo-600" />
               
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-bold text-slate-800 dark:text-dark-100">
-                  Update Application Status
+              <div className="flex justify-between items-center mb-4 relative z-10">
+                <h3 className="text-lg font-bold text-slate-800 dark:text-dark-100 flex items-center gap-2">
+                  <Activity className="w-5 h-5 text-brand-500" />
+                  Update Status
                 </h3>
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.1, rotate: 90 }}
+                  whileTap={{ scale: 0.9 }}
                   onClick={() => setSelectedAppForStatus(null)}
-                  className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-dark-800 text-slate-400 dark:text-dark-500"
+                  className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-dark-800 text-slate-400 dark:text-dark-500 transition-all"
                 >
                   <XCircle className="w-5 h-5" />
-                </button>
+                </motion.button>
               </div>
 
               {/* Applicant Context */}
-              <div className="bg-slate-50 dark:bg-dark-950 rounded-xl p-4 border border-slate-200/50 dark:border-dark-850/50 text-xs space-y-2 mb-6">
+              <div className="bg-white dark:bg-dark-950 rounded-xl p-4 border border-slate-200/50 dark:border-dark-850/50 text-xs space-y-2 mb-6 shadow-inner relative z-10">
                 <div>
                   <span className="text-slate-400 dark:text-dark-500 block uppercase tracking-wider font-semibold">Applicant Name</span>
                   <span className="text-sm font-bold text-slate-800 dark:text-dark-200">{selectedAppForStatus.applicant_name}</span>
@@ -686,54 +758,57 @@ export default function Dashboard() {
               </div>
 
               {/* Action Toggles */}
-              <div className="space-y-3">
+              <div className="space-y-3 relative z-10">
                 <span className="block text-xs font-semibold text-slate-400 dark:text-dark-500 uppercase tracking-widest">
                   Choose Status
                 </span>
                 
                 <div className="grid grid-cols-3 gap-3">
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
                     onClick={() => handleStatusUpdate(selectedAppForStatus.id, 'pending')}
                     className={`flex flex-col items-center justify-center p-3 rounded-xl border text-sm font-semibold transition-all ${
                       selectedAppForStatus.status === 'pending'
-                        ? 'border-amber-500 bg-amber-500/10 text-amber-600 dark:text-amber-400 shadow-sm'
-                        : 'border-slate-200 dark:border-dark-800 hover:bg-slate-50 dark:hover:bg-dark-850'
+                        ? 'border-amber-500 bg-amber-500/10 text-amber-600 dark:text-amber-400 shadow-glow'
+                        : 'border-slate-200 dark:border-dark-800 bg-white/50 dark:bg-dark-800/50 hover:bg-slate-50 dark:hover:bg-dark-700'
                     }`}
                   >
                     <Clock className="w-5 h-5 mb-1" />
                     Pending
-                  </button>
+                  </motion.button>
 
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
                     onClick={() => handleStatusUpdate(selectedAppForStatus.id, 'approved')}
                     className={`flex flex-col items-center justify-center p-3 rounded-xl border text-sm font-semibold transition-all ${
                       selectedAppForStatus.status === 'approved'
-                        ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shadow-sm'
-                        : 'border-slate-200 dark:border-dark-800 hover:bg-slate-50 dark:hover:bg-dark-850'
+                        ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shadow-glow'
+                        : 'border-slate-200 dark:border-dark-800 bg-white/50 dark:bg-dark-800/50 hover:bg-slate-50 dark:hover:bg-dark-700'
                     }`}
                   >
                     <CheckCircle2 className="w-5 h-5 mb-1" />
                     Approve
-                  </button>
+                  </motion.button>
 
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
                     onClick={() => handleStatusUpdate(selectedAppForStatus.id, 'rejected')}
                     className={`flex flex-col items-center justify-center p-3 rounded-xl border text-sm font-semibold transition-all ${
                       selectedAppForStatus.status === 'rejected'
-                        ? 'border-rose-500 bg-rose-500/10 text-rose-600 dark:text-rose-400 shadow-sm'
-                        : 'border-slate-200 dark:border-dark-800 hover:bg-slate-50 dark:hover:bg-dark-850'
+                        ? 'border-rose-500 bg-rose-500/10 text-rose-600 dark:text-rose-400 shadow-glow'
+                        : 'border-slate-200 dark:border-dark-800 bg-white/50 dark:bg-dark-800/50 hover:bg-slate-50 dark:hover:bg-dark-700'
                     }`}
                   >
                     <XCircle className="w-5 h-5 mb-1" />
                     Reject
-                  </button>
+                  </motion.button>
                 </div>
               </div>
 
-              <div className="mt-6 pt-4 border-t border-slate-200 dark:border-dark-800 flex gap-3">
+              <div className="mt-6 pt-4 border-t border-slate-200/50 dark:border-dark-800/50 flex gap-3 relative z-10">
                 <button
                   onClick={() => setSelectedAppForStatus(null)}
-                  className="w-full py-2.5 rounded-xl border border-slate-200 dark:border-dark-800 hover:bg-slate-100 dark:hover:bg-dark-800 text-xs font-semibold text-slate-700 dark:text-dark-300 transition-colors"
+                  className="w-full py-2.5 rounded-xl border border-slate-200 dark:border-dark-700 bg-white/50 dark:bg-dark-800/50 hover:bg-slate-100 dark:hover:bg-dark-700 text-xs font-semibold text-slate-700 dark:text-dark-300 transition-colors shadow-sm"
                 >
                   Cancel
                 </button>
