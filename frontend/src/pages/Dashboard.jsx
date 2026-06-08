@@ -73,6 +73,18 @@ function ChartTooltip({ active, payload, label }) {
   );
 }
 
+function PieTooltip({ active, payload }) {
+  if (!active || !payload?.length) return null;
+  const data = payload[0].payload;
+  return (
+    <div className="glass-card px-3 py-2 rounded-xl text-xs shadow-glass-dark border border-white/10 flex items-center gap-2">
+      <span className="w-2.5 h-2.5 rounded-full" style={{ background: data.fill }} />
+      <span className="font-semibold text-slate-900 dark:text-white text-[13px]">{data.name}</span>
+      <span className="font-bold text-slate-500 dark:text-dark-400 text-[13px]">({data.value})</span>
+    </div>
+  );
+}
+
 /* ─── Motion variants ───────────────────── */
 const stagger = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.08 } } };
 const rise    = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 280, damping: 22 } } };
@@ -323,11 +335,7 @@ export default function Dashboard() {
                           <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
                         ))}
                       </Pie>
-                      <Tooltip contentStyle={{
-                        background:'rgba(15,22,35,0.95)', backdropFilter:'blur(12px)',
-                        border:'1px solid rgba(255,255,255,0.08)', borderRadius:'10px',
-                        color:'#fff', fontSize:'12px',
-                      }} />
+                      <Tooltip content={<PieTooltip />} />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
