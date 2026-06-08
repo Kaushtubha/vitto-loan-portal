@@ -398,7 +398,7 @@ export default function Dashboard() {
         <div className="glass-panel rounded-2xl border border-white/40 dark:border-white/[0.05] overflow-hidden shadow-glass hover:shadow-[0_24px_60px_-12px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_24px_60px_-12px_rgba(255,255,255,0.05)] transition-all duration-300">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-slate-100/60 dark:divide-dark-800/40 text-sm">
-              <thead className="bg-slate-50/70 dark:bg-dark-900/60 backdrop-blur-sm">
+              <thead className="bg-slate-100/50 dark:bg-dark-900/60 backdrop-blur-md border-b border-slate-200/60 dark:border-white/10">
                 <tr>
                   {['ID / Date','Applicant','Mobile','Amount (₹)','Language','Status','Actions'].map(h => (
                     <th key={h} className="px-5 py-3.5 text-left text-[10px] font-display font-bold uppercase tracking-[0.1em] text-slate-400 dark:text-dark-500">
@@ -431,7 +431,7 @@ export default function Dashboard() {
                           animate={{ opacity:1, y:0 }}
                           exit={{ opacity:0 }}
                           transition={{ delay: i * 0.04, duration: 0.25 }}
-                          className="group hover:bg-white/60 dark:hover:bg-dark-800/30 transition-colors duration-150 cursor-default"
+                          className="group hover:bg-white/90 dark:hover:bg-dark-800/30 transition-all duration-200 cursor-default hover:shadow-sm"
                         >
                           {/* ID + date */}
                           <td className="px-5 py-4 whitespace-nowrap">
