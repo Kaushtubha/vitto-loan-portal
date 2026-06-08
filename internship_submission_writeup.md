@@ -3,8 +3,8 @@
 **Candidate Name**: *Inclusive FinTech - Intern Track*  
 **Project Role**: Full Stack Software Engineer (Intern Assessment)  
 **Submission Date**: June 2026  
-**Repository**: [GitHub Repository URL Placeholder]  
-**Live Application URL**: [Vercel Frontend URL Placeholder]  
+**Repository**: [https://github.com/Kaushtubha/vitto-loan-portal](https://github.com/Kaushtubha/vitto-loan-portal)  
+**Live Application URL**: [https://vitto-loan-portal-frontend.vercel.app](https://vitto-loan-portal-frontend.vercel.app)  
 
 ---
 
