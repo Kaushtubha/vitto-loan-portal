@@ -1,0 +1,8 @@
+{
+  "name": "vitto-loan-portal-root",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "npm --prefix frontend install && npm --prefix frontend run build && mv frontend/dist dist"
+  }
+}
