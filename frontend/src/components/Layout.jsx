@@ -123,7 +123,7 @@ export default function Layout({ children }) {
             bg-slate-100/60 dark:bg-dark-800/50 border border-slate-200/50 dark:border-dark-700/40">
             <span className="text-xs font-semibold text-slate-500 dark:text-dark-400">Appearance</span>
             <motion.button
-              whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.92 }}
+              whileHover={{ scale: 1.08, rotate: 8 }} whileTap={{ scale: 0.92, rotate: -8 }}
               onClick={toggleTheme}
               className="p-1.5 rounded-lg bg-white dark:bg-dark-700 border border-slate-200/70 dark:border-dark-600/60
                 text-brand-500 shadow-sm hover:shadow-glow-sm transition-all"

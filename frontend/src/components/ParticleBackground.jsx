@@ -22,7 +22,7 @@ export default function ParticleBackground() {
 
       {/* Mouse Follow Glow */}
       <motion.div
-        className="absolute w-[600px] h-[600px] rounded-full bg-brand-500/15 blur-[120px] dark:bg-brand-500/20"
+        className="absolute w-[600px] h-[600px] rounded-full bg-brand-500/15 blur-[160px] dark:bg-brand-500/20"
         animate={{
           x: mousePosition.x - 300,
           y: mousePosition.y - 300,
@@ -35,13 +35,13 @@ export default function ParticleBackground() {
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 2 }}
-        className="absolute -top-[20%] -left-[10%] w-[55%] h-[55%] rounded-full bg-gradient-radial from-brand-500/20 via-brand-600/5 to-transparent blur-[120px] animate-pulse-glow dark:from-brand-500/20" 
+        className="absolute -top-[20%] -left-[10%] w-[55%] h-[55%] rounded-full bg-gradient-radial from-brand-500/20 via-brand-600/5 to-transparent blur-[140px] animate-pulse-glow dark:from-brand-500/20" 
       />
       <motion.div 
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 2.5, delay: 0.5 }}
-        className="absolute -bottom-[15%] -right-[10%] w-[50%] h-[50%] rounded-full bg-gradient-radial from-indigo-500/20 via-purple-600/5 to-transparent blur-[100px] animate-pulse-glow dark:from-indigo-500/20"
+        className="absolute -bottom-[15%] -right-[10%] w-[50%] h-[50%] rounded-full bg-gradient-radial from-indigo-500/20 via-purple-600/5 to-transparent blur-[120px] animate-pulse-glow dark:from-indigo-500/20"
       />
       
       {/* Floating Orbs */}
@@ -52,7 +52,7 @@ export default function ParticleBackground() {
           rotate: [0, 5, 0]
         }}
         transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute top-[30%] left-[20%] w-64 h-64 rounded-full bg-brand-400/20 blur-[80px]"
+        className="absolute top-[30%] left-[20%] w-64 h-64 rounded-full bg-brand-400/20 blur-[100px]"
       />
       <motion.div
         animate={{
@@ -61,7 +61,7 @@ export default function ParticleBackground() {
           rotate: [0, -5, 0]
         }}
         transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-        className="absolute top-[60%] right-[30%] w-80 h-80 rounded-full bg-indigo-400/20 blur-[90px]"
+        className="absolute top-[60%] right-[30%] w-80 h-80 rounded-full bg-indigo-400/20 blur-[120px]"
       />
       <motion.div
         animate={{
@@ -70,7 +70,7 @@ export default function ParticleBackground() {
           scale: [1, 1.2, 1]
         }}
         transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
-        className="absolute bottom-[10%] left-[30%] w-96 h-96 rounded-full bg-rose-500/10 dark:bg-rose-500/15 blur-[100px]"
+        className="absolute bottom-[10%] left-[30%] w-96 h-96 rounded-full bg-rose-500/10 dark:bg-rose-500/15 blur-[120px]"
       />
 
       {/* Subtle noise overlay */}

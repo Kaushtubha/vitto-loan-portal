@@ -138,7 +138,7 @@ export default function ApplyLoan() {
                   <label className="block text-[11px] font-display font-bold uppercase tracking-widest text-slate-500 dark:text-dark-400 group-focus-within:text-brand-500 transition-colors">
                     Applicant Name
                   </label>
-                  <div className="relative">
+                  <div className="relative focus-within:scale-[1.01] transition-transform duration-300">
                     <User size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-dark-500 pointer-events-none group-focus-within:text-brand-500 transition-colors" />
                     <input name="applicant_name" type="text" value={form.applicant_name}
                       onChange={handleChange} placeholder="e.g. Rajesh Kumar"
@@ -153,7 +153,7 @@ export default function ApplyLoan() {
                     <label className="block text-[11px] font-display font-bold uppercase tracking-widest text-slate-500 dark:text-dark-400 group-focus-within:text-brand-500 transition-colors">
                       Mobile Number
                     </label>
-                    <div className="relative">
+                    <div className="relative focus-within:scale-[1.01] transition-transform duration-300">
                       <Phone size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-dark-500 pointer-events-none group-focus-within:text-brand-500 transition-colors" />
                       <input name="mobile_number" type="tel" value={form.mobile_number}
                         onChange={handleChange} placeholder="9876543210" maxLength={10}
@@ -166,7 +166,7 @@ export default function ApplyLoan() {
                     <label className="block text-[11px] font-display font-bold uppercase tracking-widest text-slate-500 dark:text-dark-400 group-focus-within:text-brand-500 transition-colors">
                       Preferred Language
                     </label>
-                    <div className="relative">
+                    <div className="relative focus-within:scale-[1.01] transition-transform duration-300">
                       <Languages size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-dark-500 pointer-events-none group-focus-within:text-brand-500 transition-colors" />
                       <select name="preferred_language" value={form.preferred_language}
                         onChange={handleChange}
@@ -191,7 +191,7 @@ export default function ApplyLoan() {
                   <label className="block text-[11px] font-display font-bold uppercase tracking-widest text-slate-500 dark:text-dark-400 group-focus-within:text-brand-500 transition-colors">
                     Loan Amount (₹)
                   </label>
-                  <div className="relative">
+                  <div className="relative focus-within:scale-[1.01] transition-transform duration-300">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-dark-500 font-bold text-sm pointer-events-none group-focus-within:text-brand-500 transition-colors">₹</span>
                     <input name="loan_amount" type="number" value={form.loan_amount}
                       onChange={handleChange} placeholder="50000" min="1"
@@ -205,7 +205,7 @@ export default function ApplyLoan() {
                   <label className="block text-[11px] font-display font-bold uppercase tracking-widest text-slate-500 dark:text-dark-400 group-focus-within:text-brand-500 transition-colors">
                     Loan Purpose
                   </label>
-                  <div className="relative">
+                  <div className="relative focus-within:scale-[1.01] transition-transform duration-300">
                     <FileText size={15} className="absolute left-3.5 top-3.5 text-slate-400 dark:text-dark-500 pointer-events-none group-focus-within:text-brand-500 transition-colors" />
                     <textarea name="loan_purpose" rows={4} value={form.loan_purpose}
                       onChange={handleChange}
@@ -223,7 +223,7 @@ export default function ApplyLoan() {
                     Cancel
                   </motion.button>
                   <motion.button type="submit" disabled={loading}
-                    whileHover={{ scale: loading ? 1 : 1.02 }}
+                    whileHover={{ scale: loading ? 1 : 1.02, boxShadow: "0 10px 30px -10px rgba(232,24,74,0.5)" }}
                     whileTap={{ scale: loading ? 1 : 0.98 }}
                     className="btn-primary flex-1 py-3 justify-center gap-2">
                     {loading

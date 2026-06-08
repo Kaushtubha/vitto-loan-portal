@@ -86,8 +86,8 @@ function PieTooltip({ active, payload }) {
 }
 
 /* ─── Motion variants ───────────────────── */
-const stagger = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.08 } } };
-const rise    = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 280, damping: 22 } } };
+const stagger = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.06 } } };
+const rise    = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } } };
 
 /* ─────────────────────────────────────────── */
 export default function Dashboard() {
@@ -431,7 +431,7 @@ export default function Dashboard() {
                           animate={{ opacity:1, y:0 }}
                           exit={{ opacity:0 }}
                           transition={{ delay: i * 0.04, duration: 0.25 }}
-                          className="group hover:bg-white/90 dark:hover:bg-brand-900/10 transition-all duration-200 cursor-default hover:shadow-sm dark:hover:shadow-[0_2px_15px_rgba(232,24,74,0.05)]"
+                          className="group hover:bg-white/90 dark:hover:bg-brand-900/10 transition-all duration-200 cursor-default hover:shadow-sm dark:hover:shadow-[0_2px_15px_rgba(232,24,74,0.05)] hover:-translate-y-[1px] hover:scale-[1.002]"
                         >
                           {/* ID + date */}
                           <td className="px-5 py-4 whitespace-nowrap">
