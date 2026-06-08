@@ -304,12 +304,13 @@ export default function Dashboard() {
                   <YAxis stroke="#6b7280" opacity={0.4} tickLine={false} />
                   <Tooltip 
                     contentStyle={{ 
-                      background: 'rgba(17, 24, 39, 0.9)', 
+                      background: 'rgba(17, 24, 39, 0.95)', 
                       border: 'none', 
-                      borderRadius: '8px',
-                      color: '#fff',
-                      fontSize: '11px'
+                      borderRadius: '12px',
+                      boxShadow: '0 10px 25px rgba(0,0,0,0.1)'
                     }} 
+                    itemStyle={{ color: '#fff' }}
+                    labelStyle={{ color: '#6b7280' }}
                     formatter={(value) => [`₹${value.toLocaleString('en-IN')}`, 'Amount']}
                   />
                   <Area type="monotone" dataKey="amount" stroke="#6366f1" strokeWidth={2} fillOpacity={1} fill="url(#colorAmount)" />
@@ -352,12 +353,12 @@ export default function Dashboard() {
                       </Pie>
                       <Tooltip 
                         contentStyle={{ 
-                          background: 'rgba(17, 24, 39, 0.9)', 
+                          background: 'rgba(17, 24, 39, 0.95)', 
                           border: 'none', 
                           borderRadius: '8px',
-                          color: '#fff',
-                          fontSize: '11px'
                         }} 
+                        itemStyle={{ color: '#fff' }}
+                        labelStyle={{ color: '#fff' }}
                       />
                     </PieChart>
                   </ResponsiveContainer>
