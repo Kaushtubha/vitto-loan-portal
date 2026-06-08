@@ -141,7 +141,7 @@ export default function ApplyLoan() {
                   <div className="relative focus-within:scale-[1.01] transition-transform duration-300">
                     <User size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-dark-500 pointer-events-none group-focus-within:text-brand-500 transition-colors" />
                     <input name="applicant_name" type="text" value={form.applicant_name}
-                      onChange={handleChange} placeholder="e.g. Rajesh Kumar"
+                      onChange={handleChange} placeholder="e.g. Kaushtubham Shukla"
                       className={`input-base pl-10 pr-4 py-3 ${errors.applicant_name ? 'error' : ''}`} />
                   </div>
                   <FieldError msg={errors.applicant_name} />
