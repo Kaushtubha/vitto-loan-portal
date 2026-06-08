@@ -36,7 +36,8 @@
   }
   .dark .glass-card {
     background: linear-gradient(135deg, rgba(30,36,51,0.85) 0%, rgba(24,30,46,0.9) 100%);
-    @apply backdrop-blur-xl border border-white/[0.06] shadow-card-dark transition-all duration-300;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset, 0 8px 32px rgba(0,0,0,0.4);
+    @apply backdrop-blur-xl border border-white/[0.06] transition-all duration-300;
   }
 
   .glass-panel {
@@ -44,7 +45,8 @@
   }
   .dark .glass-panel {
     background: linear-gradient(135deg, rgba(24,30,46,0.7) 0%, rgba(15,22,35,0.8) 100%);
-    @apply backdrop-blur-2xl border border-white/[0.04] shadow-glass-dark transition-all duration-300;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+    @apply backdrop-blur-2xl border border-white/[0.04] transition-all duration-300;
   }
 
   /* ─── Hover cards ────────────────────────── */
