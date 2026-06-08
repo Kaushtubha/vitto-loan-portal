@@ -5,6 +5,7 @@ import {
   LayoutDashboard, FilePlus, Sun, Moon, Menu, X, Zap, ChevronRight,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import ParticleBackground from './ParticleBackground';
 
 const NAV = [
   { name: 'Dashboard',        path: '/',      icon: LayoutDashboard, sub: 'Analytics & overview'  },
@@ -27,26 +28,7 @@ export default function Layout({ children }) {
     <div className="min-h-screen flex text-slate-900 dark:text-slate-200 font-sans relative overflow-hidden bg-slate-50 dark:bg-dark-950 transition-colors duration-500">
 
       {/* ── Background system ─────────────────────────────────── */}
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        <div className="absolute inset-0 bg-grid-pattern opacity-100" />
-
-        {/* Cinematic aurora blobs */}
-        <div className="absolute -top-[20%] -left-[10%] w-[55%] h-[55%] rounded-full
-          bg-gradient-radial from-brand-500/12 via-brand-600/6 to-transparent
-          blur-[120px] animate-pulse-glow dark:from-brand-500/18" />
-        <div className="absolute -bottom-[15%] -right-[10%] w-[50%] h-[50%] rounded-full
-          bg-gradient-radial from-indigo-500/10 via-purple-600/5 to-transparent
-          blur-[100px] animate-pulse-glow dark:from-indigo-500/14"
-          style={{ animationDelay: '2s' }} />
-        <div className="absolute top-[40%] left-[50%] w-[30%] h-[30%] rounded-full
-          bg-gradient-radial from-brand-400/6 to-transparent
-          blur-[80px] animate-float dark:from-brand-400/10"
-          style={{ animationDelay: '1s' }} />
-
-        {/* Subtle noise overlay */}
-        <div className="absolute inset-0 opacity-[0.015] dark:opacity-[0.04]"
-          style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")" }} />
-      </div>
+      <ParticleBackground />
 
       {/* ── Desktop Sidebar ───────────────────────────────────── */}
       <aside className="hidden md:flex flex-col w-64 fixed inset-y-0 left-0 z-30
